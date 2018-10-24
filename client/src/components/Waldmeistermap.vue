@@ -111,28 +111,6 @@ export default {
       });
       myGeoJsonPoly = [];
     },
-    // This function updates an existing UserArea and is called when the User presses update
-    update() {
-      var theArea = {
-        "label": this.userAreaLabel,
-        "public": !!this.checked,
-        "polygon": {
-          "type": "MultiPolygon",
-          "coordinates": [
-            [myGeoJsonPoly]
-          ]
-        }
-      }
-      console.log(currentIdOfPolygon)
-      var self = this;
-      AreaService.updateArea(theArea, currentIdOfPolygon)
-      .then( (response) => {
-        self.updateDialogBox = false;
-        self.$emit("redrawMap");
-      });
-      
-      myGeoJsonPoly = [];
-    }
   },
 
   // This code is executed when the Waldmeistermap.vue is mounted on the page
