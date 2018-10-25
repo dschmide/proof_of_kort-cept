@@ -11,12 +11,17 @@ import store from '@/store/store'
 Vue.config.productionTip = false
 
 Vue.use(vuetify)
+//vue resource
+import VueResource from 'vue-resource';
+Vue.use(VueResource);
+
 
 sync(store, router)
 
 require('./assets/css/leaflet.js')
 require('./assets/css/leaflet.css')
 require('./assets/css/Leaflet.Editable.js')
+
 
 /* eslint-disable no-new */
 new Vue({

@@ -44,7 +44,6 @@
 </template>
 <script>
 import AreaService from '@/services/AreaService'
-import Vegetation from '@/components/data/vegetationskarte_minimal.json'
 
 const startPoint = [47.233498, 8.736205];
 const attributionForMap = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &vert; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; <a href="https://maps.zh.ch">maps.zh.ch</a>'
@@ -52,7 +51,6 @@ const tileLayerURL = 'https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/
 
 const PolygonButtonTextIdle = 'Add'
 const PolygonButtonTextEditing = 'Edit'
-const ToggleVegetationButtonLabel= 'Veg'
 const ToggleUserAreasLabel = "UAs"
 
 var geolocationOptions = {
@@ -77,7 +75,6 @@ export default {
     return {
       checked: false,
       userAreaLabel: "",
-      vegetation: Vegetation,
       title: 'KortMissionMap',
       zoom: 13,
       center: [51.505, -0.09],
@@ -118,6 +115,7 @@ export default {
     //Show my location on map
     //todo setinterval
     var CircleGroup = L.layerGroup();
+    var RestaurantGroup = L.layerGroup();
     navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions);
     
     async function geoLocationSuccess(pos) {
@@ -162,7 +160,44 @@ export default {
     // make closure of "this"
     var self = this;
 
+    //test request
+    // GET /someUrl
+    console.log("making Missions request for current proximity")
+    // POST /someUrl
+    this.$http.get('https://kort.dev.ifs.hsr.ch/v1.0/missions?user_id=-1&lat=47.249954&lon=8.699995&radius=5000&limit=100&lang=en', {foo: 'bar'}).then(response => {
 
+      // get status
+      response.status;
+
+      // get status text
+      response.statusText;
+
+      // get 'Expires' header
+      response.headers.get('Expires');
+
+      // get body data
+      this.someData = response.body;
+      console.log(this.someData)
+
+      //Draw all Restaurants from response
+      RestaurantGroup.clearLayers();
+      this.someData.forEach(k => {
+        if (k.error_type /*== 'missing_cuisine'*/) {
+          console.log(k.error_type)
+          console.log(k.annotationCoordinate[0])
+          console.log(k.annotationCoordinate[1])  
+          
+          //Add Restaurants to LayerGroup
+          //L.circle([k.annotationCoordinate[0], k.annotationCoordinate[1]], 50, {color:'red',opacity:1,fillColor: 'red',fillOpacity:1}).addTo(RestaurantGroup);
+          L.circle([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 10}).addTo(map);
+          console.log("drawn restaurant at")
+        }
+      });
+      RestaurantGroup.addTo(map)
+
+    }, response => {
+      console.log("missions failed")
+    });
   }
 
 }
