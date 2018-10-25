@@ -78,7 +78,7 @@ export default {
       checked: false,
       userAreaLabel: "",
       vegetation: Vegetation,
-      title: 'WaldmeisterMap',
+      title: 'KortMissionMap',
       zoom: 13,
       center: [51.505, -0.09],
       url: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
@@ -133,24 +133,6 @@ export default {
       L.circle([crd.latitude, crd.longitude], 10, {color:'white',opacity:1,fillColor: 'blue',fillOpacity:.7}).addTo(CircleGroup);
       CircleGroup.addTo(map)
 
-      // determine if in vegetation polygon
-      //var SuccessPolygon = (await getInPolygon(47.21490162751083, 8.691289296839386));
-      //var SuccessPolygon = (await getInPolygon(47.255682388507054, 8.732877597212793));
-      var SuccessPolygon = (await getInPolygon(crd.latitude, crd.longitude));
-
-
-      if (SuccessPolygon != 0) {
-        console.log("you're in: " + SuccessPolygon);
-
-      }else{
-        console.log("you're not in a forest");
-      }
-
-      console.log(DisplayForestLink);
-      if (DisplayForestLink) {
-        DisplayForestLink.innerHTML = SuccessPolygon;        
-      }
-
       setTimeout(function(){ navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions); }, 5000);
 
     }  
@@ -179,6 +161,8 @@ export default {
 
     // make closure of "this"
     var self = this;
+
+
   }
 
 }

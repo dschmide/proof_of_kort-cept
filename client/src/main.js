@@ -8,8 +8,6 @@ import { sync } from 'vuex-router-sync'
 import 'vuetify/dist/vuetify.min.css'
 import store from '@/store/store'
 
-import Vue2Leaflet from 'vue2-leaflet';
-
 Vue.config.productionTip = false
 
 Vue.use(vuetify)
