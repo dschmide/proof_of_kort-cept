@@ -1,12 +1,12 @@
 version: '3.5'
 services:
   frontend:
-    image: proofofkortzept/map-frontend
+    image: dschmide/proofofkortzept-client
     build:
       context: client
       dockerfile: Dockerfile.production
   backend: &backend
-    image: proofofkortzept/map-api
+    image: dschmide/proofofkortzept-backend
     build: backend
 networks:
   default:
