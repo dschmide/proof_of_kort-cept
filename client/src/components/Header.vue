@@ -15,6 +15,13 @@
           v-if="$store.state.isUserLoggedIn"
           flat 
           dark
+          @click="navigateTo({name: 'missions'})">
+          Missions
+        </v-btn>
+        <v-btn 
+          v-if="$store.state.isUserLoggedIn"
+          flat 
+          dark
           @click="navigateTo({name: 'market'})">
           Market
         </v-btn>

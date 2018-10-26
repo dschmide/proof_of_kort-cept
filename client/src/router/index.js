@@ -2,9 +2,9 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Register from '@/components/Register'
 import Login from '@/components/Login'
-import Waldmeistermap from '@/components/Waldmeistermap'
 import Market from '@/components/Market'
 import Stats from '@/components/Stats'
+import Missions from '@/components/Missions'
 
 Vue.use(Router)
 
@@ -12,7 +12,7 @@ export default new Router({
   routes: [{
       path: '/',
       name: 'root',
-      component: Waldmeistermap
+      component: Missions
     },
     {
       path: '/register',
@@ -27,7 +27,7 @@ export default new Router({
     {
       path: '/map',
       name: 'map',
-      component: Waldmeistermap
+      component: Missions
     },
     {
       path: '/market',
@@ -38,6 +38,11 @@ export default new Router({
       path: '/stats',
       name: 'stats',
       component: Stats
+    },
+    {
+      path: '/missions',
+      name: 'missions',
+      component: Missions
     }
   ]
 })
