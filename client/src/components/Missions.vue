@@ -107,7 +107,7 @@ export default {
     },
   },
 
-  // This code is executed when the Waldmeistermap.vue is mounted on the page
+  // This code is executed when the Missions.vue is mounted on the page
   async mounted() {
     //Show my location on map
     //todo setinterval
@@ -163,9 +163,6 @@ export default {
 
     // make closure of "this"
     var self = this;
-
-    //test request
-    // GET /someUrl
     
     async function getNearbyMissions() {
       console.log("making Missions request for current proximity")
@@ -211,7 +208,7 @@ export default {
             strokecolor = 'orange'
           }
 
-          L.circle([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 10, color:strokecolor}).addTo(currentLocationGroup);
+          L.circle([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 10, color:strokecolor, k}).addTo(currentLocationGroup).on('mousedown', clickedMission);
           console.log("drawn nearby mission")
         }
       });
@@ -221,6 +218,12 @@ export default {
       console.log("getting missions failed")
     });
 
+    }
+
+    function clickedMission(e)
+    {
+      console.log("hi. you clicked the mission at" + this.getLatLng());
+      console.log(this.options.k.osmId)
     }
 
     //Get missions of example Tower (fixed location)
@@ -246,9 +249,6 @@ export default {
           console.log(k.error_type)
           console.log(k.annotationCoordinate[0])
           console.log(k.annotationCoordinate[1])  
-          
-          //Add Restaurants to LayerGroup
-          //L.circle([k.annotationCoordinate[0], k.annotationCoordinate[1]], 50, {color:'red',opacity:1,fillColor: 'red',fillOpacity:1}).addTo(RestaurantGroup);
           
           //Default color blue
           //Sample missions
