@@ -2,6 +2,11 @@ from django.db.models import Q
 from rest_framework import viewsets
 from restful_api.models import UserArea
 from restful_api.serializers import AreaSerializer
+
+# User Attributes
+from restful_api.models import UserAttributes
+from restful_api.serializers import UserAttributesSerializer
+
 # DRY Permission package
 from dry_rest_permissions.generics import DRYPermissions
 
@@ -11,6 +16,20 @@ from restful_api.serializers import VegetationSerializer
 
 from django.contrib.gis.geos import Polygon
 from django.contrib.gis.geos import Point
+
+
+class UserAttributesViewSet(viewsets.ModelViewSet):
+    permission_classes = (DRYPermissions,)
+    queryset = UserAttributes.objects.all()
+
+    def get_queryset(self):
+        print(self.request.user.is_authenticated)
+        print(self.request.user)
+        if self.request.user.is_authenticated:
+            return UserArea.objects.filter(Q(creator=self.request.user) | Q(public=True))  # noqa
+        return UserArea.objects.filter(public=True)
+    serializer_class = UserAttributesSerializer
+    http_method_names = ['get', 'put', 'delete', 'post']
 
 
 class UserAreaViewSet(viewsets.ModelViewSet):

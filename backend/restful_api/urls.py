@@ -8,8 +8,9 @@ from . import views
 router = routers.DefaultRouter()
 router.register(r'areas', views.UserAreaViewSet)
 router.register(r'vegetation', views.VegetationViewSet)
+router.register(r'user_attributes', views.UserAttributesViewSet)
 
-schema_view = get_swagger_view(title='Waldmeister API')
+schema_view = get_swagger_view(title='Kort-cept API')
 
 
 urlpatterns = [
