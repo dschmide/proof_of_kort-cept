@@ -1,39 +1,37 @@
 <template>
   <div id="app">
     <v-layout row justify-center>
-      <v-dialog v-model="saveDialog" max-width="500px">
+      <v-dialog v-model="missionBriefing" max-width="500px">
         <v-card>
           <v-card-title>
-            <span>Create new Userarea</span>
+            <span>Mission Briefing</span>
             <v-spacer></v-spacer>
           </v-card-title>
           <v-card-text>
-            <v-text-field label="Label" type="text" v-model="userAreaLabel"></v-text-field>
-            Public Area:
-            <input type="checkbox" id="checkbox" v-model="checked">
-            <label for="checkbox"> {{ checked }}</label>
+            <span>You selected the following Mission: </span>
+            {{missionType}}
+            <v-spacer></v-spacer>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="primary" flat @click.stop="saveDialog=false">Close</v-btn>
-            <v-btn color="primary" dark class="light-green" flat @click="save">Save</v-btn>
+            <v-btn color="primary" flat @click.stop="missionBriefing=false">Not now</v-btn>
+            <v-btn color="primary" dark class="light-green" flat @click.stop="openMission">Solve!</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog v-model="updateDialogBox" max-width="500px">
+      <v-dialog v-model="submitMissionDialog" max-width="500px">
         <v-card>
           <v-card-title>
-            <span>Update existing Userarea</span>
+            <span>Solve this Mission</span>
             <v-spacer></v-spacer>
           </v-card-title>
           <v-card-text>
-            <v-text-field label="Label" type="text" v-model="userAreaLabel"></v-text-field>
-            Public Area:
-            <input type="checkbox" id="checkbox" v-model="checked">
-            <label for="checkbox"> {{ checked }}</label>
+            {{missionQuestion}}
+            <v-text-field label="Your answer" outline v-model="userAreaLabel"></v-text-field>
+            {{missionDescription}}
           </v-card-text>
           <v-card-actions>
-            <v-btn color="primary" flat @click.stop="updateDialogBox=false">Close</v-btn>
-            <v-btn color="primary" dark class="light-green" flat @click="update">Update</v-btn>
+            <v-btn color="primary" flat @click.stop="submitMissionDialog=false">Close</v-btn>
+            <v-btn color="primary" dark class="light-green" flat @click="submitMission">Submit</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -46,8 +44,8 @@
 import AreaService from '@/services/AreaService'
 
 const startPoint = [47.233498, 8.736205];
-const attributionForMap = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &vert; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; <a href="https://maps.zh.ch">maps.zh.ch</a>'
-const tileLayerURL = 'https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.{ext}'
+const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+const tileLayerURL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 
 
 var geolocationOptions = {
@@ -56,10 +54,12 @@ var geolocationOptions = {
   maximumAge: 5000
 };
 
+// Mission Briefing and solving Mission
+var currentMissionDetails = ''
+
 var myGeoJsonPoly = [];
 var myCoords
 var PolyCoordinates
-var currentIdOfPolygon
 
 var AllUserAreas = []
 
@@ -67,9 +67,18 @@ var DisplayForestLink
 
 
 
+
 export default {
   data() {
     return {
+      // Mission Dialog Boxes
+      submitMissionDialog: false,
+      missionBriefing: false,
+      
+      missionQuestion: '',
+      missionType: '',
+      missionDescription: '',
+
       checked: false,
       userAreaLabel: "",
       title: 'KortMissionMap',
@@ -85,6 +94,31 @@ export default {
     }
   },
   methods: {
+    // This Function submits a solved Mission to the server and closes the Mission dialog
+    openMission() {
+        this.missionBriefing = false
+        this.submitMissionDialog = true
+    },
+    // This Function submits a solved Mission to the server and closes the Mission dialog
+    submitMission() {
+      var solvedMission = {
+        "label": this.userAreaLabel,
+        "public": !!this.checked,
+        "polygon": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [myGeoJsonPoly]
+          ]
+        }
+      }
+      var self = this;
+      MissionService.postMission(theMission)
+      .then( (response) => {
+        this.submitMissionDialog = false;
+        self.$emit("redrawMap");
+      });
+      myGeoJsonPoly = [];
+    },
     // This Function sends a drawn polygon to the server and closes the save dialog
     save() {
       var theArea = {
@@ -128,8 +162,8 @@ export default {
 
       //Draws the circle
       CircleGroup.clearLayers();
-      L.circle([crd.latitude, crd.longitude], crd.accuracy, {color:'white',opacity:0,fillColor: 'blue',fillOpacity:.15}).addTo(CircleGroup);
-      L.circle([crd.latitude, crd.longitude], 10, {color:'white',opacity:1,fillColor: 'blue',fillOpacity:.7}).addTo(CircleGroup);
+      L.circleMarker([crd.latitude, crd.longitude], crd.accuracy, {color:'white',opacity:0,fillColor: 'blue',fillOpacity:.15}).addTo(CircleGroup);
+      L.circleMarker([crd.latitude, crd.longitude], 10, {color:'white',opacity:1,fillColor: 'blue',fillOpacity:.7}).addTo(CircleGroup);
       CircleGroup.addTo(map)
 
       currentLatitude = crd.latitude
@@ -165,10 +199,6 @@ export default {
     var self = this;
     
     async function getNearbyMissions() {
-      console.log("making Missions request for current proximity")
-      console.log(currentLatitude)
-      console.log(currentLongitude)
-
       self.$http.get('https://kort.dev.ifs.hsr.ch/v1.0/missions?user_id=-1&lat='+currentLatitude+'&lon='+currentLongitude+'&radius=5000&limit=100&lang=en', {foo: 'bar'}).then(response => {
 
       // get status
@@ -188,10 +218,7 @@ export default {
       currentLocationGroup.clearLayers();
       self.someData.forEach(k => {
         if (k.error_type /*== 'missing_cuisine'*/) {
-          console.log(k.error_type)
-          console.log(k.annotationCoordinate[0])
-          console.log(k.annotationCoordinate[1])  
-          
+
           //Default color blue
           //Sample missions
           let strokecolor =  'blue'
@@ -208,8 +235,7 @@ export default {
             strokecolor = 'orange'
           }
 
-          L.circle([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 10, color:strokecolor, k}).addTo(currentLocationGroup).on('mousedown', clickedMission);
-          console.log("drawn nearby mission")
+          L.circleMarker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 6, color:strokecolor, k}).addTo(currentLocationGroup).on('click', clickedMission);
         }
       });
       currentLocationGroup.addTo(map)
@@ -223,7 +249,15 @@ export default {
     function clickedMission(e)
     {
       console.log("hi. you clicked the mission at" + this.getLatLng());
-      console.log(this.options.k.osmId)
+      console.log(this.options.k)
+      self.submitMissionDialog = false
+      self.missionBriefing = true
+      console.log(self.missionBriefing, self.submitMissionDialog)
+
+      currentMissionDetails = this.options.k
+      self.missionType = currentMissionDetails.title
+      self.missionQuestion = currentMissionDetails.question
+      self.missionDescription = currentMissionDetails.inputType.options
     }
 
     //Get missions of example Tower (fixed location)
@@ -245,10 +279,7 @@ export default {
       //Draw all Restaurants from response
       RestaurantGroup.clearLayers();
       this.someData.forEach(k => {
-        if (k.error_type /*== 'missing_cuisine'*/) {
-          console.log(k.error_type)
-          console.log(k.annotationCoordinate[0])
-          console.log(k.annotationCoordinate[1])  
+        if (k.error_type /*== 'missing_cuisine'*/) { 
           
           //Default color blue
           //Sample missions
@@ -267,7 +298,6 @@ export default {
           }
 
           L.circle([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 10, color:strokecolor}).addTo(RestaurantGroup);
-          console.log("drawn mission")
         }
       });
       RestaurantGroup.addTo(map)

@@ -26,8 +26,7 @@ class UserAttributesViewSet(viewsets.ModelViewSet):
         print(self.request.user.is_authenticated)
         print(self.request.user)
         if self.request.user.is_authenticated:
-            return UserArea.objects.filter(Q(creator=self.request.user) | Q(public=True))  # noqa
-        return UserArea.objects.filter(public=True)
+            return UserAttributes.objects.filter(Q(creator=self.request.user))  # noqa
     serializer_class = UserAttributesSerializer
     http_method_names = ['get', 'put', 'delete', 'post']
 

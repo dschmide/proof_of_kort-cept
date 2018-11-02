@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from restful_api.models import UserAttributes
 from restful_api.models import UserArea
 from restful_api.models import Vegetation
 
