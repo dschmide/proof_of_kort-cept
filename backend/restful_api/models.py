@@ -35,7 +35,7 @@ class UserAttributes(models.Model):
         
 class solvedMission(models.Model):
     osmID = models.DecimalField(default=0, max_digits=10, decimal_places=0)
-    answer = models.DecimalField(default=0, max_digits=10, decimal_places=0)
+    answer = models.CharField(max_length=99)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:

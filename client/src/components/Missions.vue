@@ -35,6 +35,24 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="missionRewardDialog" max-width="500px">
+        <v-card>
+          <v-card-title>
+            <span>Mission Reward</span>
+            <v-spacer></v-spacer>
+          </v-card-title>
+          <v-card-text>
+            Thank you for solving this mission!
+            You have been rewarded with: <br> <br>
+            <p class="text-sm-left" pl-5>+ {{missionKoinReward}} Koins</p>
+            + {{missionKoinReward}} Koins <br>
+            + {{missionExperienceReward}} Experience <br>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="primary" dark class="light-green" flat @click="closeReward">Ok</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-layout>
     <div id='map'>
     </div>
@@ -58,16 +76,6 @@ var geolocationOptions = {
 // Mission Briefing and solving Mission
 var currentMissionDetails = ''
 
-var myGeoJsonPoly = [];
-var myCoords
-var PolyCoordinates
-
-var AllUserAreas = []
-
-var DisplayForestLink
-
-
-
 
 export default {
   data() {
@@ -75,12 +83,16 @@ export default {
       // Mission Dialog Boxes
       submitMissionDialog: false,
       missionBriefing: false,
+      missionRewardDialog: false,
       
       missionQuestion: '',
       missionType: '',
       missionDescription: '',
+      missionOsmID: '',
 
-      checked: false,
+      missionKoinReward: 20,
+      missionExperienceReward: 50,
+
       missionAnswer: "",
       title: 'KortMissionMap',
       zoom: 13,
@@ -104,21 +116,42 @@ export default {
     submitMission() {
       var solvedMission = {
         "answer": this.missionAnswer,
-        "osmID": 'testID',
+        "osmID": this.missionOsmID,
       }
       var self = this;
       MissionService.postMission(solvedMission)
       .then( (response) => {
         this.submitMissionDialog = false;
         self.$emit("redrawMap");
+        this.missionRewardDialog = true;
       });
+    },
+    // This Function closes the reward dialog box that opens after solving a mission
+    async closeReward() {
+      var self = this;
+      this.missionRewardDialog = false
+      this.missionOsmID = ''
+      this.missionAnswer = ''
+
+      //get current Attributes from login
+      var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+      myAttributes.experience = parseInt(myAttributes.experience) + parseInt(this.missionKoinReward)
+      myAttributes.koins = parseInt(myAttributes.koins) + parseInt(this.missionKoinReward)
+      
+      UserAttributesService.updateUserAttributes(
+        {
+        'koins': myAttributes.koins,
+        'experience': myAttributes.experience,
+        'towers': myAttributes.towers,
+        },
+        myAttributes.id,
+      )
     },
   },
 
   // This code is executed when the Missions.vue is mounted on the page
   async mounted() {
     //Show my location on map
-    //todo setinterval
     var currentLatitude
     var currentLongitude
 
@@ -232,6 +265,7 @@ export default {
       self.missionType = currentMissionDetails.title
       self.missionQuestion = currentMissionDetails.question
       self.missionDescription = currentMissionDetails.inputType.options
+      self.missionOsmID = currentMissionDetails.osmId
     }
 
     //Get missions of example Tower (fixed location)

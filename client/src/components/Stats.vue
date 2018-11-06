@@ -7,10 +7,20 @@
         </v-toolbar>
         <div class="pl-4 pr-4 pt-2 pb-2">
           <div>
-            <h3 class="headline mb-0">Stats</h3>
+            <br>
+            <h3 class="headline mb-0">{{ this.$store.state.user }}</h3>
             <div>Checkout your current Stats in this Screen
             </div>
           </div>
+          Experience:
+          <template>
+            <v-progress-linear v-model="currentExperience"></v-progress-linear>
+          </template>
+          Koins: {{currentKoins}} <br>
+          Towers: {{currentTowers}} <br>
+          <br> <br>
+          Sight Range: {{currentSightRange}} <br>
+          Tower Range: {{currentTowerRange}} <br>
         </div>
       </div>
     </v-flex>
@@ -23,6 +33,12 @@ import UserAttributesService from '@/services/UserAttributesService'
 export default {
   data () {
     return {
+      // Mission Dialog Boxes
+      currentExperience: 0,
+      currentKoins: 0,
+      currentTowers: 0,
+      currentSightRange: 0,
+      currentTowerRange: 0,
     }
   },
   methods: {
@@ -34,8 +50,12 @@ export default {
     var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
     console.log('Getting Profile Data...')
     console.log(myAttributes)
-    console.log(myAttributes.koins)
-    console.log(myAttributes.experience)
+    this.currentExperience = myAttributes.experience
+    this.currentKoins = myAttributes.koins
+    this.currentTowers = myAttributes.towers
+
+    this.currentSightRange = myAttributes.sight_range
+    this.currentTowerRange = myAttributes.tower_range
   }
 }
 </script>
