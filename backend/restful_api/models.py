@@ -4,10 +4,12 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class UserAttributes(models.Model):
-    koins = models.DecimalField(..., max_digits=10, decimal_places=0)
-    experience = models.DecimalField(..., max_digits=10, decimal_places=0)
-    towers = models.DecimalField(..., max_digits=10, decimal_places=0)
+    koins = models.DecimalField(default=0, max_digits=10, decimal_places=0)
+    experience = models.DecimalField(default=0, max_digits=10, decimal_places=0)
+    towers = models.DecimalField(default=0, max_digits=10, decimal_places=0)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    tower_range = models.DecimalField(default=0, max_digits=10, decimal_places=0)
+    sight_range = models.DecimalField(default=0, max_digits=10, decimal_places=0)
 
     class Meta:
         ordering = ('creator',)
@@ -29,20 +31,11 @@ class UserAttributes(models.Model):
 
     def has_object_write_permission(self, request):
         return request.user == self.creator
+
         
-
-class Vegetation(models.Model):
-    ek72 = models.CharField(max_length=10)
-    geom = models.MultiPolygonField(srid=4326)
-
-    def __str__(self):
-        return self.ek72
-
-
-class UserArea(models.Model):
-    label = models.CharField(max_length=50)
-    public = models.BooleanField()
-    polygon = models.MultiPolygonField(4326)
+class solvedMission(models.Model):
+    osmID = models.DecimalField(default=0, max_digits=10, decimal_places=0)
+    answer = models.DecimalField(default=0, max_digits=10, decimal_places=0)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
@@ -50,19 +43,18 @@ class UserArea(models.Model):
 
     @staticmethod
     def has_read_permission(request):
-        return True
+        return request.user.is_authenticated
 
     def has_object_read_permission(self, request):
-        return True
-
-    @staticmethod
-    def has_create_permission(request):
         return request.user.is_authenticated
 
     @staticmethod
-    def has_write_permission(request):
+    def has_create_permission(request):
         return True
 
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated
+
     def has_object_write_permission(self, request):
-        print(self.creator)
-        return request.user == self.creator
+        return request.user.is_authenticated

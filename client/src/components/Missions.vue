@@ -26,7 +26,7 @@
           </v-card-title>
           <v-card-text>
             {{missionQuestion}}
-            <v-text-field label="Your answer" outline v-model="userAreaLabel"></v-text-field>
+            <v-text-field label="Your answer" outline v-model="missionAnswer"></v-text-field>
             {{missionDescription}}
           </v-card-text>
           <v-card-actions>
@@ -41,7 +41,8 @@
   </div>
 </template>
 <script>
-import AreaService from '@/services/AreaService'
+import UserAttributesService from '@/services/UserAttributesService'
+import MissionService from '@/services/MissionService'
 
 const startPoint = [47.233498, 8.736205];
 const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -80,7 +81,7 @@ export default {
       missionDescription: '',
 
       checked: false,
-      userAreaLabel: "",
+      missionAnswer: "",
       title: 'KortMissionMap',
       zoom: 13,
       center: [51.505, -0.09],
@@ -102,42 +103,15 @@ export default {
     // This Function submits a solved Mission to the server and closes the Mission dialog
     submitMission() {
       var solvedMission = {
-        "label": this.userAreaLabel,
-        "public": !!this.checked,
-        "polygon": {
-          "type": "MultiPolygon",
-          "coordinates": [
-            [myGeoJsonPoly]
-          ]
-        }
+        "answer": this.missionAnswer,
+        "osmID": 'testID',
       }
       var self = this;
-      MissionService.postMission(theMission)
+      MissionService.postMission(solvedMission)
       .then( (response) => {
         this.submitMissionDialog = false;
         self.$emit("redrawMap");
       });
-      myGeoJsonPoly = [];
-    },
-    // This Function sends a drawn polygon to the server and closes the save dialog
-    save() {
-      var theArea = {
-        "label": this.userAreaLabel,
-        "public": !!this.checked,
-        "polygon": {
-          "type": "MultiPolygon",
-          "coordinates": [
-            [myGeoJsonPoly]
-          ]
-        }
-      }
-      var self = this;
-      AreaService.postArea(theArea)
-      .then( (response) => {
-        this.saveDialog = false;
-        self.$emit("redrawMap");
-      });
-      myGeoJsonPoly = [];
     },
   },
 
@@ -199,7 +173,7 @@ export default {
     var self = this;
     
     async function getNearbyMissions() {
-      self.$http.get('https://kort.dev.ifs.hsr.ch/v1.0/missions?user_id=-1&lat='+currentLatitude+'&lon='+currentLongitude+'&radius=5000&limit=100&lang=en', {foo: 'bar'}).then(response => {
+      self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+currentLatitude+'&lon='+currentLongitude+'&radius=5000&limit=100&lang=en', {foo: 'bar'}).then(response => {
 
       // get status
       response.status;
@@ -261,7 +235,7 @@ export default {
     }
 
     //Get missions of example Tower (fixed location)
-    this.$http.get('https://kort.dev.ifs.hsr.ch/v1.0/missions?user_id=-1&lat=47.223410&lon=8.818158&radius=5000&limit=100&lang=en', {foo: 'bar'}).then(response => {
+    this.$http.get('/api_kort/v1.0/missions?user_id=-1&lat=47.223410&lon=8.818158&radius=5000&limit=100&lang=en', {foo: 'bar'}).then(response => {
 
       // get status
       response.status;
@@ -279,7 +253,7 @@ export default {
       //Draw all Restaurants from response
       RestaurantGroup.clearLayers();
       this.someData.forEach(k => {
-        if (k.error_type /*== 'missing_cuisine'*/) { 
+        if (k.error_type) { 
           
           //Default color blue
           //Sample missions

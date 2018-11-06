@@ -13,7 +13,7 @@ urlpatterns = [
         'api/',
         include([
             path('admin/', admin.site.urls),
-            path('waldmeister-map/', include('restful_api.urls')),
+            path('kort-cept/', include('restful_api.urls')),
             # Rest Framework
             url(r'^', include(router.urls)),
             url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework_auth')),  # noqa

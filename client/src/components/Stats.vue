@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import UserAttributesService from '@/services/UserAttributesService'
+
 export default {
   data () {
     return {
@@ -25,6 +27,15 @@ export default {
   },
   methods: {
     
+  },
+
+  // This Code is executed when the Stats component is mounted
+  async mounted() {
+    var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+    console.log('Getting Profile Data...')
+    console.log(myAttributes)
+    console.log(myAttributes.koins)
+    console.log(myAttributes.experience)
   }
 }
 </script>

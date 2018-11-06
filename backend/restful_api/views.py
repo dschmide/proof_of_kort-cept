@@ -1,21 +1,16 @@
 from django.db.models import Q
 from rest_framework import viewsets
-from restful_api.models import UserArea
-from restful_api.serializers import AreaSerializer
 
 # User Attributes
 from restful_api.models import UserAttributes
 from restful_api.serializers import UserAttributesSerializer
 
+# User Attributes
+from restful_api.models import solvedMission
+from restful_api.serializers import solvedMissionSerializer
+
 # DRY Permission package
 from dry_rest_permissions.generics import DRYPermissions
-
-# Contains Point
-from restful_api.models import Vegetation
-from restful_api.serializers import VegetationSerializer
-
-from django.contrib.gis.geos import Polygon
-from django.contrib.gis.geos import Point
 
 
 class UserAttributesViewSet(viewsets.ModelViewSet):
@@ -23,52 +18,17 @@ class UserAttributesViewSet(viewsets.ModelViewSet):
     queryset = UserAttributes.objects.all()
 
     def get_queryset(self):
-        print(self.request.user.is_authenticated)
-        print(self.request.user)
         if self.request.user.is_authenticated:
             return UserAttributes.objects.filter(Q(creator=self.request.user))  # noqa
     serializer_class = UserAttributesSerializer
     http_method_names = ['get', 'put', 'delete', 'post']
 
-
-class UserAreaViewSet(viewsets.ModelViewSet):
+class solvedMissionViewSet(viewsets.ModelViewSet):
     permission_classes = (DRYPermissions,)
-    queryset = UserArea.objects.all()
+    queryset = solvedMission.objects.all()
 
     def get_queryset(self):
-        print(self.request.user.is_authenticated)
-        print(self.request.user)
         if self.request.user.is_authenticated:
-            return UserArea.objects.filter(Q(creator=self.request.user) | Q(public=True))  # noqa
-        return UserArea.objects.filter(public=True)
-    serializer_class = AreaSerializer
+            return solvedMission.objects.filter(Q(creator=self.request.user))  # noqa
+    serializer_class = solvedMissionSerializer
     http_method_names = ['get', 'put', 'delete', 'post']
-
-
-class VegetationViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Vegetation.objects.all()
-
-    def get_queryset(self):
-        myLat = float(self.request.query_params.get('lat'))
-        myLng = float(self.request.query_params.get('lng'))
-        pnt_wkt = Point(myLat, myLng)
-        print(pnt_wkt.geom_typeid)
-
-        ne = (myLat + 0.00000001, myLng + 0.00000001)
-        sw = (myLat - 0.00000001, myLng - 0.00000001)
-
-        xmin = sw[1]
-        ymin = sw[0]
-        xmax = ne[1]
-        ymax = ne[0]
-        bbox = (xmin, ymin, xmax, ymax)
-
-        boundingbox = Polygon.from_bbox(bbox)
-        print(boundingbox.geom_typeid)
-        return Vegetation.objects.filter(geom__contains=boundingbox)
-
-        # return Vegetation.objects.filter(geom__intersects=pnt_wkt)
-        # return Vegetation.objects.all()
-        # return Vegetation.objects.all()[:5]
-
-    serializer_class = VegetationSerializer

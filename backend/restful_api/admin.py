@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import UserArea
-from .models import Vegetation
+from .models import UserAttributes
+from .models import solvedMission
 
-# Register a Django DB Model
-admin.site.register(UserArea)
-admin.site.register(Vegetation)
+# Register all required Django DB Models
+admin.site.register(UserAttributes)
+admin.site.register(solvedMission)

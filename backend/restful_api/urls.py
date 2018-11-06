@@ -6,9 +6,9 @@ from rest_framework_swagger.views import get_swagger_view
 from . import views
 
 router = routers.DefaultRouter()
-router.register(r'areas', views.UserAreaViewSet)
-router.register(r'vegetation', views.VegetationViewSet)
 router.register(r'user_attributes', views.UserAttributesViewSet)
+router.register(r'solved_mission', views.solvedMissionViewSet)
+
 
 schema_view = get_swagger_view(title='Kort-cept API')
 

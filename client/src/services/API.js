@@ -4,7 +4,7 @@ import store from '@/store/store'
 
 export default () => {
   var service = {
-    baseURL: '/api/waldmeister-map/',
+    baseURL: '/api/kort-cept/',
     headers: {}
   }
   console.log(store.state.token)

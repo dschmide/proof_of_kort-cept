@@ -14,12 +14,12 @@
 
 <script>
 import PageHeader from '@/components/Header.vue'
-import Waldmeistermap from '@/components/Waldmeistermap.vue'
+import Missions from '@/components/Missions.vue'
 
 export default {
   name: 'app',
   components: {
-    PageHeader, Waldmeistermap
+    PageHeader, Missions
   }
 }
 </script>

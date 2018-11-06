@@ -47,6 +47,8 @@
 
 <script>
 import AuthenticationSevice from '@/services/AuthenticationService'
+import UserAttributesService from '@/services/UserAttributesService'
+
 export default {
   data () {
     return {
@@ -75,6 +77,17 @@ export default {
               name: 'login' 
             })
             console.log(response.data)
+
+            // Create new Profile
+            UserAttributesService.newUser(
+            {
+              "koins": 0,
+              "experience": 0,
+              "towers": 0,
+              "tower_range": 0,
+              "sight_range": 0,
+            })
+            console.log('fresh profile created')
           })
         })
         .catch((error) => {
