@@ -36,6 +36,8 @@ class UserAttributes(models.Model):
 class solvedMission(models.Model):
     osmID = models.DecimalField(default=0, max_digits=10, decimal_places=0)
     answer = models.CharField(max_length=99)
+    solved_by = models.CharField(default=0, max_length=99)
+    timestamp = models.DecimalField(default=0, max_digits=16, decimal_places=0)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
@@ -43,10 +45,10 @@ class solvedMission(models.Model):
 
     @staticmethod
     def has_read_permission(request):
-        return request.user.is_authenticated
+        return True
 
     def has_object_read_permission(self, request):
-        return request.user.is_authenticated
+        return True
 
     @staticmethod
     def has_create_permission(request):

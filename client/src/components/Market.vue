@@ -18,15 +18,42 @@
 </template>
 
 <script>
+import UserAttributesService from '@/services/UserAttributesService'
+
+
 export default {
   data () {
     return {
+      // Mission Dialog Boxes
+      currentExperience: 0,
+      currentKoins: 0,
+      currentTowers: 0,
+      currentSightRange: 0,
+      currentTowerRange: 0,
+
+      currentExperiencePercent: 0,
+      currentLevel: 1,
     }
   },
   methods: {
     
+  },
+
+  // This Code is executed when the Market component is mounted
+  async mounted() {
+    var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+    console.log('Getting Profile Data...')
+    console.log(myAttributes)
+    this.currentExperience = myAttributes.experience
+    this.currentKoins = myAttributes.koins
+    this.currentTowers = myAttributes.towers
+
+    this.currentSightRange = myAttributes.sight_range
+    this.currentTowerRange = myAttributes.tower_range
+
   }
 }
+
 </script>
 
 <style scoped>

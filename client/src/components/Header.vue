@@ -15,14 +15,19 @@
           v-if="$store.state.isUserLoggedIn"
           flat 
           dark
-          @click="navigateTo({name: 'missions'})">
+          @click="navigateTo({name: 'missions'})"
+          >
+          <v-icon left dark>explore</v-icon>
           Missions
         </v-btn>
+        
         <v-btn 
           v-if="$store.state.isUserLoggedIn"
           flat 
           dark
-          @click="navigateTo({name: 'market'})">
+          @click="navigateTo({name: 'market'})"
+          >
+          <v-icon left dark>shopping_cart</v-icon>
           Market
         </v-btn>
 
@@ -30,7 +35,9 @@
           v-if="$store.state.isUserLoggedIn"
           flat 
           dark
-          @click="navigateTo({name: 'stats'})">
+          @click="navigateTo({name: 'stats'})"
+          >
+          <v-icon left dark>trending_up</v-icon>
           Stats
         </v-btn>
 
@@ -56,12 +63,16 @@
           @click="logout">
           LogOut
         </v-btn>
-        <div class="text-xs-center header-chip">
+
+        <div class="text-xs-center">
           <v-chip
-          flat
-          dark
+          color="orange"
+          text-color="white"
+          
           v-if="$store.state.isUserLoggedIn"
-          >{{ this.$store.state.user }}
+          >
+          <v-icon left>account_circle</v-icon>
+          {{ this.$store.state.user }}
           </v-chip>
         </div>
     </v-toolbar-items>

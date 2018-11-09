@@ -3,14 +3,18 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import vuetify from 'vuetify'
+import Vuetify from 'vuetify'
 import { sync } from 'vuex-router-sync'
 import 'vuetify/dist/vuetify.min.css'
 import store from '@/store/store'
+import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 Vue.config.productionTip = false
 
-Vue.use(vuetify)
+Vue.use(Vuetify , {
+  iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
+})
+
 //vue resource
 import VueResource from 'vue-resource';
 Vue.use(VueResource);

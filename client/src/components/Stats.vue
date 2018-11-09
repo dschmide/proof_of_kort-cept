@@ -12,11 +12,14 @@
             <div>Checkout your current Stats in this Screen
             </div>
           </div>
-          Experience:
+          Level: {{this.currentLevel}} <br>
           <template>
-            <v-progress-linear v-model="currentExperience"></v-progress-linear>
+            <v-progress-linear v-model="currentExperiencePercent"></v-progress-linear>
           </template>
+          <br>
+          Experience: {{currentExperience}} <br>
           Koins: {{currentKoins}} <br>
+          <br>
           Towers: {{currentTowers}} <br>
           <br> <br>
           Sight Range: {{currentSightRange}} <br>
@@ -39,6 +42,9 @@ export default {
       currentTowers: 0,
       currentSightRange: 0,
       currentTowerRange: 0,
+
+      currentExperiencePercent: 0,
+      currentLevel: 1,
     }
   },
   methods: {
@@ -56,6 +62,22 @@ export default {
 
     this.currentSightRange = myAttributes.sight_range
     this.currentTowerRange = myAttributes.tower_range
+
+    // Calculate percent progress of current level
+    if (this.currentExperience < 50 ) {
+      this.currentExperiencePercent = 100 / 50 * this.currentExperience
+      this.currentLevel = 1
+    } else if (this.currentExperience < 550 ) {
+      this.currentExperiencePercent = 100 / (550 - 50) * (this.currentExperience - 50)
+      this.currentLevel = 2
+    } else if (this.currentExperience < 2330 ) {
+      this.currentExperiencePercent = 100 / (2330 - 600) * (this.currentExperience - 600)
+      this.currentLevel = 3
+    } else {
+      // Default "maxed"
+      this.currentExperiencePercent = 100
+      this.currentLevel = 99
+    }
   }
 }
 </script>

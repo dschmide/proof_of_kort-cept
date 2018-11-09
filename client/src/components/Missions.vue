@@ -44,7 +44,6 @@
           <v-card-text>
             Thank you for solving this mission!
             You have been rewarded with: <br> <br>
-            <p class="text-sm-left" pl-5>+ {{missionKoinReward}} Koins</p>
             + {{missionKoinReward}} Koins <br>
             + {{missionExperienceReward}} Experience <br>
           </v-card-text>
@@ -91,7 +90,7 @@ export default {
       missionOsmID: '',
 
       missionKoinReward: 20,
-      missionExperienceReward: 50,
+      missionExperienceReward: 10,
 
       missionAnswer: "",
       title: 'KortMissionMap',
@@ -117,6 +116,8 @@ export default {
       var solvedMission = {
         "answer": this.missionAnswer,
         "osmID": this.missionOsmID,
+        "solved_by": this.$store.state.user,
+        "timestamp": Math.floor(new Date().getTime() / 1000)
       }
       var self = this;
       MissionService.postMission(solvedMission)
@@ -135,9 +136,9 @@ export default {
 
       //get current Attributes from login
       var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
-      myAttributes.experience = parseInt(myAttributes.experience) + parseInt(this.missionKoinReward)
+      myAttributes.experience = parseInt(myAttributes.experience) + parseInt(this.missionExperienceReward)
       myAttributes.koins = parseInt(myAttributes.koins) + parseInt(this.missionKoinReward)
-      
+
       UserAttributesService.updateUserAttributes(
         {
         'koins': myAttributes.koins,
