@@ -8,10 +8,47 @@
         <div class="pl-4 pr-4 pt-2 pb-2">
           <div>
             <h3 class="headline mb-0">Market</h3>
-            <div>In this Market, players may exchange their Koins for ingame Resources or Attributes
+            <div>In the Market, players may exchange their Koins for in-game Resources or Attributes
             </div>
           </div>
         </div>
+      
+      <v-card>
+        <v-container
+          fluid
+          grid-list-md
+        >
+          <v-layout row wrap>
+            <v-flex
+              v-for="card in cards"
+              v-bind="{ [`xs${card.flex}`]: true }"
+              :key="card.title"
+            >
+              <v-card>
+                  <v-container
+                    fill-height
+                    fluid
+                    pa-2
+                  >
+                    <v-layout fill-height>
+                      <v-flex xs12 align-end flexbox>
+                        <span class="headline black--text" v-text="card.title"></span>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+
+                <v-card-actions>
+                  {{card.cost}} Koins
+                  <v-spacer></v-spacer>
+                  <v-btn icon>
+                    <v-icon>add_circle</v-icon>
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card>
       </div>
     </v-flex>
   </v-layout>
@@ -33,6 +70,13 @@ export default {
 
       currentExperiencePercent: 0,
       currentLevel: 1,
+
+      cards: [
+        { cost: 50, title: 'Tower', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
+        { cost: 500, title: 'Ark', src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg', flex: 6 },
+        { cost: 150, title: 'Vision Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/plane.jpg', flex: 6 },
+        { cost: 150, title: 'Tower Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
+      ]
     }
   },
   methods: {
