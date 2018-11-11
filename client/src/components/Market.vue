@@ -40,7 +40,7 @@
                 <v-card-actions>
                   {{card.cost}} Koins
                   <v-spacer></v-spacer>
-                  <v-btn icon>
+                  <v-btn icon @click.stop="buyItem(card.type)">
                     <v-icon>add_circle</v-icon>
                   </v-btn>
                 </v-card-actions>
@@ -72,15 +72,44 @@ export default {
       currentLevel: 1,
 
       cards: [
-        { cost: 50, title: 'Tower', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
-        { cost: 500, title: 'Ark', src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg', flex: 6 },
-        { cost: 150, title: 'Vision Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/plane.jpg', flex: 6 },
-        { cost: 150, title: 'Tower Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
+        { type: 'tower', cost: 50, title: 'Tower', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
+        { type: 'arc', cost: 500, title: 'Arc', src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg', flex: 6 },
+        { type: 'vrange', cost: 150, title: 'Vision Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/plane.jpg', flex: 6 },
+        { type: 'trange', cost: 150, title: 'Tower Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
       ]
     }
   },
   methods: {
-    
+    async buyItem(itemType) {
+      var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+
+      switch(itemType) {
+      case 'tower':
+          console.log('buying a tower...')
+          if (myAttributes.koins >= 50) {
+            myAttributes.koins = parseInt(myAttributes.koins) - 50
+            myAttributes.towers = parseInt(myAttributes.towers) + 1
+
+            UserAttributesService.updateUserAttributes(
+              {
+              'koins': myAttributes.koins,
+              'towers': myAttributes.towers,
+              },
+              myAttributes.id,
+            )
+          } else {
+            console.log("warning, you can't afford this item")
+          }
+          break;
+
+      case 'arc':
+          console.log('buying arc...')
+          break;
+
+      default:
+          console.log('buying something else')
+      }
+    }
   },
 
   // This Code is executed when the Market component is mounted
