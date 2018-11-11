@@ -1,6 +1,24 @@
 <template>
   <div id="app">
     <v-layout row justify-center>
+      <v-dialog v-model="buildTowerDialog" max-width="500px">
+        <v-card>
+          <v-card-title>
+            <span>Confirm Placement</span>
+            <v-spacer></v-spacer>
+          </v-card-title>
+          <v-card-text>
+            <span>Are you sure you want to place a tower here?</span>
+            {{newTowerLat}}, {{newTowerLng}}
+            <v-spacer></v-spacer>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="red" flat @click.stop="buildTowerDialog=false">Cancel</v-btn>
+            <v-btn color="primary" class="light-green" @click="placeTower">Confirm</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-dialog v-model="missionBriefing" max-width="500px">
         <v-card>
           <v-card-title>
@@ -60,6 +78,8 @@
 <script>
 import UserAttributesService from '@/services/UserAttributesService'
 import MissionService from '@/services/MissionService'
+import TowerService from '@/services/TowerService'
+
 
 const startPoint = [47.233498, 8.736205];
 const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -74,6 +94,7 @@ var geolocationOptions = {
 
 // Mission Briefing and solving Mission
 var currentMissionDetails = ''
+var newTower
 
 
 export default {
@@ -83,6 +104,10 @@ export default {
       submitMissionDialog: false,
       missionBriefing: false,
       missionRewardDialog: false,
+      buildTowerDialog: false,
+
+      newTowerLat: 0,
+      newTowerLng: 0,
       
       missionQuestion: '',
       missionType: '',
@@ -106,10 +131,28 @@ export default {
     }
   },
   methods: {
+    // This Function sends a created tower to the backend and updates the UserAttributes
+    async placeTower() {
+      var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+
+      console.log('method placeTower')
+      // Create the tower on the backend
+      TowerService.newTower(newTower)
+
+      // Update the UserAttributes
+      myAttributes.towers = parseInt(myAttributes.towers) - 1
+      UserAttributesService.updateUserAttributes(
+        {
+        'towers': myAttributes.towers,
+        },
+        myAttributes.id,
+      )
+      this.buildTowerDialog = false 
+    },
     // This Function submits a solved Mission to the server and closes the Mission dialog
     openMission() {
-        this.missionBriefing = false
-        this.submitMissionDialog = true
+      this.missionBriefing = false
+      this.submitMissionDialog = true
     },
     // This Function submits a solved Mission to the server and closes the Mission dialog
     submitMission() {
@@ -134,7 +177,7 @@ export default {
       this.missionOsmID = ''
       this.missionAnswer = ''
 
-      //get current Attributes from login
+      //get current Attributes from profile
       var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
       myAttributes.experience = parseInt(myAttributes.experience) + parseInt(this.missionExperienceReward)
       myAttributes.koins = parseInt(myAttributes.koins) + parseInt(this.missionKoinReward)
@@ -159,6 +202,8 @@ export default {
     var CircleGroup = L.layerGroup();
     var RestaurantGroup = L.layerGroup();
     var currentLocationGroup = L.layerGroup();
+    var TowerMissionGroup = L.layerGroup();
+
     navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions);
     
     async function geoLocationSuccess(pos) {
@@ -167,6 +212,8 @@ export default {
       console.log(`Latitude : ${crd.latitude}`);
       console.log(`Longitude: ${crd.longitude}`);
       console.log(`More or less ${crd.accuracy} meters.`);
+      console.log('map center is:')
+      console.log(map.getCenter())
 
       //Draws the circle
       CircleGroup.clearLayers();
@@ -202,10 +249,10 @@ export default {
     //Here the browser attempts to return a geolocation and asks the user for permission
     map.locate({setView: true, maxZoom: 15, enableHighAccuracy:false, timeout:60000, maximumAge:Infinity});
 
-
     // make closure of "this"
     var self = this;
     
+    // Add Missions from current location
     async function getNearbyMissions() {
       self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+currentLatitude+'&lon='+currentLongitude+'&radius=5000&limit=100&lang=en', {foo: 'bar'}).then(response => {
 
@@ -269,8 +316,62 @@ export default {
       self.missionOsmID = currentMissionDetails.osmId
     }
 
-    //Get missions of example Tower (fixed location)
-    this.$http.get('/api_kort/v1.0/missions?user_id=-1&lat=47.223410&lon=8.818158&radius=5000&limit=100&lang=en', {foo: 'bar'}).then(response => {
+    //Show "place tower" button on map if any towers are available
+    var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+    if (myAttributes.towers >= 1) {
+      L.NewPolygonControl = L.Control.extend({
+        options: {
+          position: 'bottomleft'
+        },
+        onAdd: function(map) {
+          var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+            link = L.DomUtil.create('a', '', container);
+          link.href = '#';
+          link.title = 'Place Tower';
+          link.innerHTML = 'Tower';
+          L.DomEvent.on(link, 'click', L.DomEvent.stop)
+            .on(link, 'click', function() {
+              if (myAttributes.towers >= 1) {
+                console.log('placing tower now...')
+                console.log(map.getCenter())
+                newTower = {
+                  'location': [map.getCenter().lat, map.getCenter().lng]
+                }
+                // open the Dialogbox before placeing a new tower
+                self.newTowerLat = map.getCenter().lat
+                self.newTowerLng = map.getCenter().lng
+                self.buildTowerDialog = true
+              } else {
+                console.log('no towers available...')
+              }
+            });
+          container.style.display = 'block';
+          return container;
+        }
+      });
+      map.addControl(new L.NewPolygonControl());
+    }
+
+    getAllTowers()
+
+    async function getAllTowers() {
+      var allTowers = await TowerService.getMyTowers()
+      console.log('logging all towers')
+      console.log(allTowers.data)
+
+      TowerMissionGroup.clearLayers();
+      allTowers.data.forEach(t=> {
+        if (t.location.length > 0) {
+          console.log(t.location)
+          getMissionsFromTower(t.location[0], t.location[1])
+        }
+      })
+      TowerMissionGroup.addTo(map)
+    }
+
+    // Add Missions from a Tower
+    async function getMissionsFromTower(towerLat, towerLng) {
+      self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+towerLat+'&lon='+towerLng+'&radius=5000&limit=100&lang=en', {foo: 'bar'}).then(response => {
 
       // get status
       response.status;
@@ -282,14 +383,13 @@ export default {
       response.headers.get('Expires');
 
       // get body data
-      this.someData = response.body;
-      console.log(this.someData)
+      self.someData = response.body;
+      console.log(self.someData)
 
-      //Draw all Restaurants from response
-      RestaurantGroup.clearLayers();
-      this.someData.forEach(k => {
-        if (k.error_type) { 
-          
+      //Add all Missions from response to layerGroup
+      self.someData.forEach(k => {
+        if (k.error_type /*== 'missing_cuisine'*/) {
+
           //Default color blue
           //Sample missions
           let strokecolor =  'blue'
@@ -306,14 +406,15 @@ export default {
             strokecolor = 'orange'
           }
 
-          L.circle([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 10, color:strokecolor}).addTo(RestaurantGroup);
+          L.circleMarker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 6, color:strokecolor, k}).addTo(TowerMissionGroup).on('click', clickedMission);
         }
       });
-      RestaurantGroup.addTo(map)
-
     }, response => {
       console.log("getting missions failed")
     });
+
+    }
+    
   }
 
 }

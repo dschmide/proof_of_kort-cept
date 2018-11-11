@@ -1,7 +1,37 @@
 from django.contrib.gis.db import models
 from django.contrib.auth import get_user_model
 
+# Array Field for Tower locations
+from django.contrib.postgres.fields import ArrayField
+
+
 User = get_user_model()
+
+class PlacedTower(models.Model):
+    location = ArrayField(models.DecimalField(max_digits=18, decimal_places=15), size=2)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ('creator',)
+
+    @staticmethod
+    def has_read_permission(request):
+        return request.user.is_authenticated
+
+    def has_object_read_permission(self, request):
+        return request.user.is_authenticated
+
+    @staticmethod
+    def has_create_permission(request):
+        return True
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated
+
+    def has_object_write_permission(self, request):
+        return request.user == self.creator
+
 
 class UserAttributes(models.Model):
     koins = models.DecimalField(default=0, max_digits=10, decimal_places=0)

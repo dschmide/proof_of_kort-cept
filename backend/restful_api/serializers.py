@@ -3,9 +3,29 @@ from restful_api.models import UserAttributes
 
 from restful_api.models import solvedMission
 
+from restful_api.models import PlacedTower
+
+
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
+
+
+class PlacedTowersSerializer(serializers.ModelSerializer):
+    creator = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),  # Or User.objects.filter(active=True)
+        required=False,
+        allow_null=True,
+        default=None,
+    )
+
+    # Get the current user from request context
+    def validate_creator(self, value):
+        return self.context['request'].user
+
+    class Meta:
+        model = PlacedTower
+        fields = ('location', 'creator', 'id')
 
 
 class UserAttributesSerializer(serializers.ModelSerializer):
