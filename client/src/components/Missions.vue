@@ -8,7 +8,7 @@
             <v-spacer></v-spacer>
           </v-card-title>
           <v-card-text>
-            <span>Are you sure you want to place a tower here?</span>
+            <span>Are you sure you want to place a tower here?</span> <br> <br>
             {{newTowerLat}}, {{newTowerLng}}
             <v-spacer></v-spacer>
           </v-card-text>
@@ -26,8 +26,9 @@
             <v-spacer></v-spacer>
           </v-card-title>
           <v-card-text>
-            <span>You selected the following Mission: </span>
-            {{missionType}}
+            <span>You selected the following Mission: </span> <br>
+            <strong> {{missionType}} </strong> <br> <br>
+            <span>This Mission is {{missionDifficulty}} </span>
             <v-spacer></v-spacer>
           </v-card-text>
           <v-card-actions>
@@ -113,6 +114,7 @@ export default {
       missionType: '',
       missionDescription: '',
       missionOsmID: '',
+      missionDifficulty: '',
 
       missionKoinReward: 20,
       missionExperienceReward: 10,
@@ -133,9 +135,9 @@ export default {
   methods: {
     // This Function sends a created tower to the backend and updates the UserAttributes
     async placeTower() {
+      
       var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
 
-      console.log('method placeTower')
       // Create the tower on the backend
       TowerService.newTower(newTower)
 
@@ -147,9 +149,11 @@ export default {
         },
         myAttributes.id,
       )
-      this.buildTowerDialog = false 
+      this.buildTowerDialog = false
+      var self = this
+      self.$emit("reloadTowers");
     },
-    // This Function submits a solved Mission to the server and closes the Mission dialog
+    // This Function closes the Mission Briefing and opens the Mission Dialog
     openMission() {
       this.missionBriefing = false
       this.submitMissionDialog = true
@@ -195,12 +199,22 @@ export default {
 
   // This code is executed when the Missions.vue is mounted on the page
   async mounted() {
+    var myAttributes
+    if (this.$store.state.isUserLoggedIn) {
+      console.log('get Attributes if logged in...')
+      myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+    } else {
+      // show warning to login!
+    }
+
+    // make closure of "this"
+    var self = this;
+
     //Show my location on map
     var currentLatitude
     var currentLongitude
 
     var CircleGroup = L.layerGroup();
-    var RestaurantGroup = L.layerGroup();
     var currentLocationGroup = L.layerGroup();
     var TowerMissionGroup = L.layerGroup();
 
@@ -208,12 +222,6 @@ export default {
     
     async function geoLocationSuccess(pos) {
       var crd = pos.coords;
-      console.log('Your current position is:');
-      console.log(`Latitude : ${crd.latitude}`);
-      console.log(`Longitude: ${crd.longitude}`);
-      console.log(`More or less ${crd.accuracy} meters.`);
-      console.log('map center is:')
-      console.log(map.getCenter())
 
       //Draws the circle
       CircleGroup.clearLayers();
@@ -249,12 +257,18 @@ export default {
     //Here the browser attempts to return a geolocation and asks the user for permission
     map.locate({setView: true, maxZoom: 15, enableHighAccuracy:false, timeout:60000, maximumAge:Infinity});
 
-    // make closure of "this"
-    var self = this;
     
     // Add Missions from current location
     async function getNearbyMissions() {
-      self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+currentLatitude+'&lon='+currentLongitude+'&radius=5000&limit=100&lang=en', {foo: 'bar'}).then(response => {
+      let range = 5000
+      if (self.$store.state.isUserLoggedIn) {
+        console.log('get Attributes if logged in...')
+        myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+        // Sight range is equal to 5000 (base range) + any upgrades bought
+        range = 5000 + parseInt(myAttributes.sight_range)
+      }
+      console.log('sight range' + range)
+      self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+currentLatitude+'&lon='+currentLongitude+'&radius='+range+'&limit=100&lang=en', {foo: 'bar'}).then(response => {
 
       // get status
       response.status;
@@ -267,7 +281,6 @@ export default {
 
       // get body data
       self.someData = response.body;
-      console.log(self.someData)
 
       //Draw all nearby Missions from response
       currentLocationGroup.clearLayers();
@@ -275,22 +288,27 @@ export default {
         if (k.error_type /*== 'missing_cuisine'*/) {
 
           //Default color blue
-          //Sample missions
+          //Mission Mapping (Difficulty)
+          let difficulty = 'medium'
           let strokecolor =  'blue'
           if (k.error_type == "missing_track_type") {
             strokecolor = 'yellow'
+            difficulty = 'medium'
           }
           if (k.error_type == "missing_maxspeed") {
-            strokecolor = 'red'
+            strokecolor = 'orange'
+            difficulty = 'medium'
           }
           if (k.error_type == "poi_name") {
-            strokecolor = 'green'
+            strokecolor = 'red'
+            difficulty = 'hard'
           }
           if (k.error_type == "language_unknown") {
-            strokecolor = 'orange'
+            strokecolor = 'green'
+            difficulty = 'easy'
           }
 
-          L.circleMarker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 6, color:strokecolor, k}).addTo(currentLocationGroup).on('click', clickedMission);
+          L.circleMarker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 6, color:strokecolor, k, difficulty}).addTo(currentLocationGroup).on('click', clickedMission);
         }
       });
       currentLocationGroup.addTo(map)
@@ -307,17 +325,17 @@ export default {
       console.log(this.options.k)
       self.submitMissionDialog = false
       self.missionBriefing = true
-      console.log(self.missionBriefing, self.submitMissionDialog)
 
       currentMissionDetails = this.options.k
       self.missionType = currentMissionDetails.title
       self.missionQuestion = currentMissionDetails.question
       self.missionDescription = currentMissionDetails.inputType.options
       self.missionOsmID = currentMissionDetails.osmId
+      self.missionDifficulty = this.options.difficulty
     }
 
-    //Show "place tower" button on map if any towers are available
-    var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+    // Show "place tower" button on map if any towers are available
+    //var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
     if (myAttributes.towers >= 1) {
       L.NewPolygonControl = L.Control.extend({
         options: {
@@ -343,6 +361,7 @@ export default {
                 self.buildTowerDialog = true
               } else {
                 console.log('no towers available...')
+                container.style.display = 'none';
               }
             });
           container.style.display = 'block';
@@ -351,18 +370,20 @@ export default {
       });
       map.addControl(new L.NewPolygonControl());
     }
-
+    // initially draw all available towers
     getAllTowers()
 
+    // This function is called when the eventhub emits the reloadTowers event
+    this.$on("reloadTowers", function(){
+      getAllTowers();
+    })
+    
     async function getAllTowers() {
       var allTowers = await TowerService.getMyTowers()
-      console.log('logging all towers')
-      console.log(allTowers.data)
 
       TowerMissionGroup.clearLayers();
       allTowers.data.forEach(t=> {
         if (t.location.length > 0) {
-          console.log(t.location)
           getMissionsFromTower(t.location[0], t.location[1])
         }
       })
@@ -371,7 +392,9 @@ export default {
 
     // Add Missions from a Tower
     async function getMissionsFromTower(towerLat, towerLng) {
-      self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+towerLat+'&lon='+towerLng+'&radius=5000&limit=100&lang=en', {foo: 'bar'}).then(response => {
+      var range = 5000 + parseInt(myAttributes.tower_range)
+      console.log('tower range' + range)
+      self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+towerLat+'&lon='+towerLng+'&radius='+range+'&limit=100&lang=en', {foo: 'bar'}).then(response => {
 
       // get status
       response.status;
@@ -384,29 +407,33 @@ export default {
 
       // get body data
       self.someData = response.body;
-      console.log(self.someData)
 
       //Add all Missions from response to layerGroup
       self.someData.forEach(k => {
         if (k.error_type /*== 'missing_cuisine'*/) {
 
           //Default color blue
-          //Sample missions
+          //Mission Mapping (Difficulty)
+          let difficulty = 'medium'
           let strokecolor =  'blue'
           if (k.error_type == "missing_track_type") {
             strokecolor = 'yellow'
+            difficulty = 'medium'
           }
           if (k.error_type == "missing_maxspeed") {
-            strokecolor = 'red'
+            strokecolor = 'orange'
+            difficulty = 'medium'
           }
           if (k.error_type == "poi_name") {
-            strokecolor = 'green'
+            strokecolor = 'red'
+            difficulty = 'hard'
           }
           if (k.error_type == "language_unknown") {
-            strokecolor = 'orange'
+            strokecolor = 'green'
+            difficulty = 'easy'
           }
 
-          L.circleMarker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 6, color:strokecolor, k}).addTo(TowerMissionGroup).on('click', clickedMission);
+          L.circleMarker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 6, color:strokecolor, k, difficulty}).addTo(TowerMissionGroup).on('click', clickedMission);
         }
       });
     }, response => {
@@ -447,17 +474,6 @@ body {
 
 .cssPolygon{
   color:green;
-}
-.AreaLabelPublic {
-  color: green;
-  text-shadow: 2px 2px 2px black;
-  opacity: 1;
-}
-
-.AreaLabelPrivate {
-  color: yellow;
-  text-shadow: 2px 2px 2px black;
-  opacity: 1;
 }
 
 div.overlay--active {

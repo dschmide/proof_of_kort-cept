@@ -84,8 +84,8 @@ export default {
               "koins": 0,
               "experience": 0,
               "towers": 0,
-              "tower_range": 0,
-              "sight_range": 0,
+              "tower_range": 5000,
+              "sight_range": 5000,
             })
             console.log('fresh profile created')
           })

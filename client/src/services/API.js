@@ -7,7 +7,6 @@ export default () => {
     baseURL: '/api/kort-cept/',
     headers: {}
   }
-  console.log(store.state.token)
   if (store.state.token !== null) {
     service.headers.Authorization = `JWT ${store.state.token}`;
   }

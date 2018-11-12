@@ -73,7 +73,7 @@ export default {
 
       cards: [
         { type: 'tower', cost: 50, title: 'Tower', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
-        { type: 'arc', cost: 500, title: 'Arc', src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg', flex: 6 },
+        { type: 'landmark', cost: 500, title: 'Landmark', src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg', flex: 6 },
         { type: 'vrange', cost: 150, title: 'Vision Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/plane.jpg', flex: 6 },
         { type: 'trange', cost: 150, title: 'Tower Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
       ]
@@ -102,8 +102,44 @@ export default {
           }
           break;
 
-      case 'arc':
-          console.log('buying arc...')
+      case 'Landmark':
+          console.log('buying Landmark...')
+          break;
+
+      case 'vrange':
+          console.log('buying vision range...')
+          if (myAttributes.koins >= 150) {
+            myAttributes.koins = parseInt(myAttributes.koins) - 150
+            myAttributes.sight_range = parseInt(myAttributes.sight_range) + 1000
+
+            UserAttributesService.updateUserAttributes(
+              {
+              'koins': myAttributes.koins,
+              'sight_range': myAttributes.sight_range,
+              },
+              myAttributes.id,
+            )
+          } else {
+            console.log("warning, you can't afford this item")
+          }
+          break;
+
+      case 'trange':
+          console.log('buying tower range...')
+          if (myAttributes.koins >= 150) {
+            myAttributes.koins = parseInt(myAttributes.koins) - 150
+            myAttributes.tower_range = parseInt(myAttributes.tower_range) + 1000
+
+            UserAttributesService.updateUserAttributes(
+              {
+              'koins': myAttributes.koins,
+              'tower_range': myAttributes.tower_range,
+              },
+              myAttributes.id,
+            )
+          } else {
+            console.log("warning, you can't afford this item")
+          }
           break;
 
       default:
