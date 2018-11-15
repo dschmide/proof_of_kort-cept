@@ -5,7 +5,7 @@ import LoginComp from '../src/components/Login.vue'
 describe('LoginComp', () => {
   // Evaluate the results of functions in
   // the raw component options
-  it('sets the correct default data', () => {
+  it('checks if component is mounted and the correct default data is set', () => {
     expect(typeof LoginComp.data).toBe('function')
     const defaultData = LoginComp.data()
     expect(defaultData.password).toBe('')

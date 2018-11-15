@@ -2,10 +2,7 @@
   <v-layout column>
     <v-flex md6 offset-md3 xs12>
       <div class="white elevation-2">
-        <v-toolbar flar dense class="light-blue" dark>
-        <v-toolbar-title>Market</v-toolbar-title>
-        </v-toolbar>
-        <div class="pl-4 pr-4 pt-2 pb-2">
+        <div class="pl-4 pr-4 pt-1 pb-2">
           <div>
             <h3 class="headline mb-0">Market</h3>
             <div>In the Market, players may exchange their Koins for in-game Resources or Attributes
@@ -72,8 +69,8 @@ export default {
       currentLevel: 1,
 
       cards: [
-        { type: 'tower', cost: 50, title: 'Tower', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
-        { type: 'landmark', cost: 500, title: 'Landmark', src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg', flex: 6 },
+        { type: 'tower', cost: 50, title: 'Buy 1 Tower', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
+        { type: 'landmark', cost: 500, title: 'Buy 1 Landmark', src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg', flex: 6 },
         { type: 'vrange', cost: 150, title: 'Vision Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/plane.jpg', flex: 6 },
         { type: 'trange', cost: 150, title: 'Tower Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
       ]
@@ -86,8 +83,9 @@ export default {
       switch(itemType) {
       case 'tower':
           console.log('buying a tower...')
-          if (myAttributes.koins >= 50) {
-            myAttributes.koins = parseInt(myAttributes.koins) - 50
+          let itemPrice = 50
+          if (myAttributes.koins >= itemPrice) {
+            myAttributes.koins = parseInt(myAttributes.koins) - itemPrice
             myAttributes.towers = parseInt(myAttributes.towers) + 1
 
             UserAttributesService.updateUserAttributes(

@@ -8,7 +8,7 @@
             <v-spacer></v-spacer>
           </v-card-title>
           <v-card-text>
-            <span>Are you sure you want to place a tower here?</span> <br> <br>
+            <span>Are you sure you want to permanently place a tower here?</span> <br> <br>
             {{newTowerLat}}, {{newTowerLng}}
             <v-spacer></v-spacer>
           </v-card-text>
@@ -83,7 +83,7 @@ import TowerService from '@/services/TowerService'
 
 
 const startPoint = [47.233498, 8.736205];
-const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; Positron'
 const tileLayerURL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 
 
@@ -96,7 +96,6 @@ var geolocationOptions = {
 // Mission Briefing and solving Mission
 var currentMissionDetails = ''
 var newTower
-
 
 export default {
   data() {
@@ -123,7 +122,6 @@ export default {
       title: 'KortMissionMap',
       zoom: 13,
       center: [51.505, -0.09],
-      url: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
 
       saveDialog: false,
       updateDialogBox: false,
@@ -244,20 +242,27 @@ export default {
 
 
     // init the map object
-    var map = L.map('map', { editable: true }).setView(startPoint, 15),
+    var map = L.map('map', {attributionControl: false}).setView(startPoint, 15),
       tilelayer = L.tileLayer(tileLayerURL, {
         attribution: attributionForMap,
         subdomains: 'abcd',
         minZoom: 0,
         maxZoom: 18,
-        ext: 'png'
+        ext: 'png',
       }).addTo(map);
 
+    // remove the Leaflet attribution prefix
+    /*
+    MapAttributionControl = map.attributionControl;
+    MapAttributionControl.setPrefix('');
+    */
+    var myAttribution = L.control.attribution({prefix: '', position: 'bottomright'}).addTo(map);
+    
     //Geolocation and Marker 
     //Here the browser attempts to return a geolocation and asks the user for permission
     map.locate({setView: true, maxZoom: 15, enableHighAccuracy:false, timeout:60000, maximumAge:Infinity});
 
-    
+  
     // Add Missions from current location
     async function getNearbyMissions() {
       let range = 5000
@@ -265,7 +270,7 @@ export default {
         console.log('get Attributes if logged in...')
         myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
         // Sight range is equal to 5000 (base range) + any upgrades bought
-        range = 5000 + parseInt(myAttributes.sight_range)
+        range = parseInt(myAttributes.sight_range)
       }
       console.log('sight range' + range)
       self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+currentLatitude+'&lon='+currentLongitude+'&radius='+range+'&limit=100&lang=en', {foo: 'bar'}).then(response => {
@@ -378,6 +383,7 @@ export default {
       getAllTowers();
     })
     
+    // This Function retrieves and adds all Missions from all Towers to the map
     async function getAllTowers() {
       var allTowers = await TowerService.getMyTowers()
 
@@ -392,23 +398,20 @@ export default {
 
     // Add Missions from a Tower
     async function getMissionsFromTower(towerLat, towerLng) {
-      var range = 5000 + parseInt(myAttributes.tower_range)
+      var range = parseInt(myAttributes.tower_range)
       console.log('tower range' + range)
       self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+towerLat+'&lon='+towerLng+'&radius='+range+'&limit=100&lang=en', {foo: 'bar'}).then(response => {
 
       // get status
       response.status;
-
       // get status text
       response.statusText;
-
       // get 'Expires' header
       response.headers.get('Expires');
-
       // get body data
       self.someData = response.body;
 
-      //Add all Missions from response to layerGroup
+      //Add all Missions from response to layerGroup TowerMissionGroup
       self.someData.forEach(k => {
         if (k.error_type /*== 'missing_cuisine'*/) {
 

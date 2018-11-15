@@ -8,5 +8,8 @@ services:
   backend: &backend
     image: dschmide/proofofkortzept-backend
     build: backend
+  nginx-https-proxy:
+    image: dschmide/nginx-https-proxy
+    build: .
 networks:
   default:

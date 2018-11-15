@@ -26,8 +26,7 @@ services:
       - default
   migrate:
     <<: *backend
-    command: bash -c "python manage.py migrate && python manage.py import"
-    # command: python manage.py migrate
+    command: bash -c "python manage.py migrate"
     ports: []
   db:
     image: mdillon/postgis
@@ -39,7 +38,6 @@ services:
       - "5432"
     networks:
       - default
-  # TODO: change api-calls (backend) to /api and include them in the ./secured-local-nginx/proxy.conf config
   nginx-https-proxy:
     image: nginx:stable-alpine
     volumes:

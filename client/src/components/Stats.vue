@@ -2,10 +2,7 @@
   <v-layout column>
     <v-flex md6 offset-md3 xs12>
       <div class="white elevation-2">
-        <v-toolbar flar dense class="light-blue" dark>
-        <v-toolbar-title>Stats</v-toolbar-title>
-        </v-toolbar>
-        <div class="pl-4 pr-4 pt-2 pb-2">
+        <div class="pl-4 pr-4 pt-1 pb-2">
           <div>
             <br>
             <h3 class="headline mb-0">{{ this.$store.state.user }}</h3>
@@ -17,13 +14,14 @@
             <v-progress-linear v-model="currentExperiencePercent"></v-progress-linear>
           </template>
           <br>
-          Experience: {{currentExperience}} <br>
+          Experience: {{currentExperience}} out of {{currentLevelXPTotal}} required for next Level<br>
+          <br>
           Koins: {{currentKoins}} <br>
           <br>
           Towers: {{currentTowers}} <br>
           <br> <br>
-          Sight Range: {{currentSightRange}} <br>
-          Tower Range: {{currentTowerRange}} <br>
+          Sight Range: {{currentSightRange}} meters<br>
+          Tower Range: {{currentTowerRange}} meters<br>
         </div>
       </div>
     </v-flex>
@@ -45,6 +43,7 @@ export default {
 
       currentExperiencePercent: 0,
       currentLevel: 1,
+      currentLevelXPTotal: 50,
     }
   },
   methods: {
@@ -67,12 +66,15 @@ export default {
     if (this.currentExperience < 50 ) {
       this.currentExperiencePercent = 100 / 50 * this.currentExperience
       this.currentLevel = 1
+      this.currentLevelXPTotal = 50
     } else if (this.currentExperience < 550 ) {
       this.currentExperiencePercent = 100 / (550 - 50) * (this.currentExperience - 50)
       this.currentLevel = 2
+      this.currentLevelXPTotal = 550
     } else if (this.currentExperience < 2330 ) {
       this.currentExperiencePercent = 100 / (2330 - 600) * (this.currentExperience - 600)
       this.currentLevel = 3
+      this.currentLevelXPTotal = 2330 
     } else {
       // Default "maxed"
       this.currentExperiencePercent = 100
