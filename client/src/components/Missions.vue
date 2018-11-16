@@ -83,7 +83,7 @@ import TowerService from '@/services/TowerService'
 
 
 const startPoint = [47.233498, 8.736205];
-const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &vert; Positron'
+const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; &copy; Map CC-BY-SA, Data ODbL &vert; v1'
 const tileLayerURL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 
 
@@ -230,16 +230,15 @@ export default {
       currentLatitude = crd.latitude
       currentLongitude = crd.longitude
 
-      setTimeout(function(){ navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions); }, 5000);
+      setTimeout(function(){ navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions); }, 10000);
       getNearbyMissions()
     }  
 
     function geoLocationError(err) {
       console.warn(`ERROR(${err.code}): ${err.message}`);
-      setTimeout(function(){ navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions); }, 5000);
+      setTimeout(function(){ navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions); }, 10000);
       console.log("gettingLocationError");
     }
-
 
     // init the map object
     var map = L.map('map', {attributionControl: false}).setView(startPoint, 15),
@@ -262,7 +261,17 @@ export default {
     //Here the browser attempts to return a geolocation and asks the user for permission
     map.locate({setView: true, maxZoom: 15, enableHighAccuracy:false, timeout:60000, maximumAge:Infinity});
 
-  
+    // Get all my previously solved Missions for comparison
+    var mySolvedMissions = await getMySolvedMissions()
+    console.log('logging all my previously solved missions')
+    console.log(mySolvedMissions)
+
+    async function getMySolvedMissions() {
+      var mySolvedMissions = await MissionService.getSolvedMissions()
+      console.log('requesting all my solved missions')
+      return mySolvedMissions.data
+    }
+    
     // Add Missions from current location
     async function getNearbyMissions() {
       let range = 5000
