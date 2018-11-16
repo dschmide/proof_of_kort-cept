@@ -1,6 +1,6 @@
-# Proof_of_Kort-zept
+# Proof_of_Kort-cept
 
-"Proof_of_Kort-zept" is a Gamified Webapp of the Kort native App for Mobile Devices
+"Proof_of_Kort-cept" is a Gamified Webapp of the Kort native App for Mobile Devices
 
 ## Usage (with docker and docker-compose)
 

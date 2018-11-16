@@ -83,7 +83,7 @@ import TowerService from '@/services/TowerService'
 
 
 const startPoint = [47.233498, 8.736205];
-const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; Positron'
+const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &vert; Positron'
 const tileLayerURL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 
 
