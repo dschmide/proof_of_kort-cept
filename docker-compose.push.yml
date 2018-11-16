@@ -10,5 +10,6 @@ services:
     build: backend
   nginx:
     image: dschmide/nginx-https-proxy
+    build: stable-alpine
 networks:
   default:
