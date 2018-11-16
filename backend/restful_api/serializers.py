@@ -7,8 +7,6 @@ from restful_api.models import PlacedTower
 
 from restful_api.models import PlacedLandmark
 
-
-
 from django.contrib.auth import get_user_model
 User = get_user_model()
 

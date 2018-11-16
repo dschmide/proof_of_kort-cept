@@ -42,6 +42,7 @@ class placedTowersViewSet(viewsets.ModelViewSet):
     serializer_class = PlacedTowersSerializer
     http_method_names = ['get', 'put', 'delete', 'post']
 
+
 class UserAttributesViewSet(viewsets.ModelViewSet):
     permission_classes = (DRYPermissions,)
     queryset = UserAttributes.objects.all()
@@ -51,6 +52,7 @@ class UserAttributesViewSet(viewsets.ModelViewSet):
             return UserAttributes.objects.filter(Q(creator=self.request.user))  # noqa
     serializer_class = UserAttributesSerializer
     http_method_names = ['get', 'put', 'delete', 'post']
+
 
 class solvedMissionViewSet(viewsets.ModelViewSet):
     permission_classes = (DRYPermissions,)

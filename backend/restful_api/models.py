@@ -7,6 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 
 User = get_user_model()
 
+
 class PlacedLandmark(models.Model):
     location = ArrayField(models.DecimalField(max_digits=18, decimal_places=15), size=2)
     label = models.CharField(max_length=99)
@@ -91,7 +92,7 @@ class UserAttributes(models.Model):
     def has_object_write_permission(self, request):
         return request.user == self.creator
 
-        
+
 class solvedMission(models.Model):
     osmID = models.DecimalField(default=0, max_digits=10, decimal_places=0)
     answer = models.CharField(max_length=99)
