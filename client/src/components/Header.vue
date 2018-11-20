@@ -1,6 +1,6 @@
 <template>
   <v-toolbar fixed class="light-blue" dark>
-    <v-toolbar-title class=mr-4>
+    <v-toolbar-title class="hidden-sm-and-down">
     <span
       class="home"
       @click="navigateTo({name: 'root'})">
@@ -9,16 +9,14 @@
     </v-toolbar-title>
 
     <v-spacer></v-spacer>
-
       <v-toolbar-items>
-        <v-btn 
+        <v-btn
           v-if="$store.state.isUserLoggedIn"
           flat 
           dark
           @click="navigateTo({name: 'missions'})"
           >
-          <v-icon left dark>explore</v-icon>
-          Missions
+          <v-icon dark>explore</v-icon> 
         </v-btn>
         
         <v-btn 
@@ -27,8 +25,7 @@
           dark
           @click="navigateTo({name: 'market'})"
           >
-          <v-icon left dark>shopping_cart</v-icon>
-          Market
+          <v-icon dark>shopping_cart</v-icon>
         </v-btn>
 
         <v-btn 
@@ -37,8 +34,7 @@
           dark
           @click="navigateTo({name: 'stats'})"
           >
-          <v-icon left dark>trending_up</v-icon>
-          Stats
+          <v-icon dark>trending_up</v-icon>
         </v-btn>
 
       <v-btn 
@@ -64,11 +60,10 @@
           LogOut
         </v-btn>
 
-        <div class="text-xs-center">
+        <div class="text-xs-right hidden-sm-and-down">
           <v-chip
           color="orange"
           text-color="white"
-          
           v-if="$store.state.isUserLoggedIn"
           >
           <v-icon left>account_circle</v-icon>
@@ -105,7 +100,7 @@ export default {
   color: #EEEEEE;
 }
 
-.header-chip{
-  margin-top: 8px;
+.chip{
+  margin-top: 12px;
 }
 </style>

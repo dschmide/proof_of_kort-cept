@@ -71,7 +71,7 @@ export default {
             this.$store.dispatch('setToken', response.data.token)
             this.$store.dispatch('setUser', this.displayname)
             this.$router.push({
-              name: 'login' 
+              name: 'map' 
             })
             console.log(response.data)
 

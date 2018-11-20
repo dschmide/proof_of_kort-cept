@@ -83,7 +83,7 @@ import TowerService from '@/services/TowerService'
 
 
 const startPoint = [47.233498, 8.736205];
-const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; &copy; Map CC-BY-SA, Data ODbL &vert; v1'
+const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; &copy; <a href="https://github.com/CartoDB/CartoDB-basemaps/blob/master/LICENSE.txt">Map CC-BY</a>, <a href="https://opendatacommons.org/licenses/odbl/">Data ODbL </a> &vert; v1'
 const tileLayerURL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 
 
@@ -467,7 +467,7 @@ body {
 
 #map {
   position: absolute;
-  top: 56px;
+  top: 66px;
   bottom: 0;
   right: 0;
   left: 0;
