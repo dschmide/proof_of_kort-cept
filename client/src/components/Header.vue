@@ -1,5 +1,5 @@
 <template>
-  <v-toolbar fixed class="light-blue" dark>
+  <v-toolbar fixed height="60" class="light-blue" dark>
     <v-toolbar-title class="hidden-sm-and-down">
     <span
       class="home"

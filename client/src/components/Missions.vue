@@ -131,7 +131,7 @@ export default {
     }
   },
   methods: {
-    // This Function sends a created tower to the backend and updates the UserAttributes
+    // This Function sends a created tower to the backend, updates the UserAttributes and redraws all missions from all towers
     async placeTower() {
       
       var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
@@ -168,8 +168,9 @@ export default {
       MissionService.postMission(solvedMission)
       .then( (response) => {
         this.submitMissionDialog = false;
-        self.$emit("redrawMap");
+        self.$emit("updateSolvedMissions");
         this.missionRewardDialog = true;
+        self.$emit("reloadTowers");
       });
     },
     // This Function closes the reward dialog box that opens after solving a mission
@@ -192,12 +193,14 @@ export default {
         },
         myAttributes.id,
       )
+      var self = this
     },
   },
 
   // This code is executed when the Missions.vue is mounted on the page
   async mounted() {
     var myAttributes
+    var mySolvedMissions
     if (this.$store.state.isUserLoggedIn) {
       console.log('get Attributes if logged in...')
       myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
@@ -262,9 +265,13 @@ export default {
     map.locate({setView: true, maxZoom: 15, enableHighAccuracy:false, timeout:60000, maximumAge:Infinity});
 
     // Get all my previously solved Missions for comparison
-    var mySolvedMissions = await getMySolvedMissions()
-    console.log('logging all my previously solved missions')
-    console.log(mySolvedMissions)
+    mySolvedMissions = await getMySolvedMissions()
+
+    // This function updates the List of solved Missions via the eventhub
+    this.$on("updateSolvedMissions", async function(){
+      mySolvedMissions = await getMySolvedMissions()
+    })
+    
 
     async function getMySolvedMissions() {
       var mySolvedMissions = await MissionService.getSolvedMissions()
@@ -299,7 +306,7 @@ export default {
       //Draw all nearby Missions from response
       currentLocationGroup.clearLayers();
       self.someData.forEach(k => {
-        if (k.error_type /*== 'missing_cuisine'*/) {
+        if (k.error_type  && !checkMissionSolvedStatus(mySolvedMissions, k.osmId)) {
 
           //Default color blue
           //Mission Mapping (Difficulty)
@@ -335,7 +342,7 @@ export default {
 
     function clickedMission(e)
     {
-      console.log("hi. you clicked the mission at" + this.getLatLng());
+      console.log("you clicked the mission at" + this.getLatLng());
       console.log(this.options.k)
       self.submitMissionDialog = false
       self.missionBriefing = true
@@ -405,6 +412,13 @@ export default {
       TowerMissionGroup.addTo(map)
     }
 
+    // helper function to check if clicked mission is already solved
+    function checkMissionSolvedStatus(arr, val) {
+      return arr.some(function(arrVal) {
+        return val.toString() === arrVal.osmID;
+      });
+    }
+
     // Add Missions from a Tower
     async function getMissionsFromTower(towerLat, towerLng) {
       var range = parseInt(myAttributes.tower_range)
@@ -422,7 +436,7 @@ export default {
 
       //Add all Missions from response to layerGroup TowerMissionGroup
       self.someData.forEach(k => {
-        if (k.error_type /*== 'missing_cuisine'*/) {
+        if (k.error_type && !checkMissionSolvedStatus(mySolvedMissions, k.osmId)) {
 
           //Default color blue
           //Mission Mapping (Difficulty)
@@ -482,10 +496,6 @@ body {
   color: white;
   text-shadow: 2px 2px 2px black;
   opacity: 1;
-}
-
-.cssPolygon{
-  color:green;
 }
 
 div.overlay--active {
