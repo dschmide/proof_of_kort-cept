@@ -45,8 +45,16 @@
           </v-card-title>
           <v-card-text>
             {{missionQuestion}}
-            <v-text-field label="Your answer" outline v-model="missionAnswer"></v-text-field>
-            {{missionDescription}}
+            <div v-if="missionPossibleAnswers == 0">
+              <v-text-field label="Your answer" outline v-model="missionAnswer"></v-text-field>
+            </div>
+            <div v-if="missionPossibleAnswers.length > 0">
+              <v-select
+                :items="missionPossibleAnswers"
+                label="Choose from..."
+                v-model="missionAnswer"
+              ></v-select>
+            </div>
           </v-card-text>
           <v-card-actions>
             <v-btn color="primary" flat @click.stop="submitMissionDialog=false">Close</v-btn>
@@ -73,7 +81,22 @@
       </v-dialog>
     </v-layout>
     <div id='map'>
+      
     </div>
+    <v-alert class="errorClass"
+        v-model="LocationError"
+        type="error"
+        dismissible
+      >
+        Error getting location. Please allow location service.
+      </v-alert>
+      <v-alert class="errorClass"
+        v-model="LoginError"
+        type="error"
+        dismissible
+      >
+        Error getting Account Data. Please Login first
+      </v-alert>
   </div>
 </template>
 <script>
@@ -89,8 +112,8 @@ const tileLayerURL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}
 
 var geolocationOptions = {
   enableHighAccuracy: false,
-  timeout: 60000,
-  maximumAge: 5000
+  timeout: 5000,
+  maximumAge: 0
 };
 
 // Mission Briefing and solving Mission
@@ -100,6 +123,11 @@ var newTower
 export default {
   data() {
     return {
+      // Location Error
+      LocationError: false,
+      // Login Error
+      LoginError: false,
+
       // Mission Dialog Boxes
       submitMissionDialog: false,
       missionBriefing: false,
@@ -111,7 +139,7 @@ export default {
       
       missionQuestion: '',
       missionType: '',
-      missionDescription: '',
+      missionPossibleAnswers: '',
       missionOsmID: '',
       missionDifficulty: '',
 
@@ -201,15 +229,15 @@ export default {
   async mounted() {
     var myAttributes
     var mySolvedMissions
+    // make closure of "this"
+    var self = this;
+
     if (this.$store.state.isUserLoggedIn) {
       console.log('get Attributes if logged in...')
       myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
     } else {
-      // show warning to login!
+      self.LoginError=true
     }
-
-    // make closure of "this"
-    var self = this;
 
     //Show my location on map
     var currentLatitude
@@ -241,14 +269,14 @@ export default {
       console.warn(`ERROR(${err.code}): ${err.message}`);
       setTimeout(function(){ navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions); }, 10000);
       console.log("gettingLocationError");
+      self.LocationError = true
     }
 
     // init the map object
     var map = L.map('map', {attributionControl: false}).setView(startPoint, 15),
       tilelayer = L.tileLayer(tileLayerURL, {
         attribution: attributionForMap,
-        subdomains: 'abcd',
-        minZoom: 0,
+        minZoom: 9,
         maxZoom: 18,
         ext: 'png',
       }).addTo(map);
@@ -307,7 +335,6 @@ export default {
       currentLocationGroup.clearLayers();
       self.someData.forEach(k => {
         if (k.error_type  && !checkMissionSolvedStatus(mySolvedMissions, k.osmId)) {
-
           //Default color blue
           //Mission Mapping (Difficulty)
           let difficulty = 'medium'
@@ -321,11 +348,15 @@ export default {
             difficulty = 'medium'
           }
           if (k.error_type == "poi_name") {
-            strokecolor = 'red'
+            strokecolor = 'OrangeRed'
             difficulty = 'hard'
           }
           if (k.error_type == "language_unknown") {
             strokecolor = 'green'
+            difficulty = 'easy'
+          }
+          if (k.error_type == "religion") {
+            strokecolor = 'Chartreuse'
             difficulty = 'easy'
           }
 
@@ -341,18 +372,24 @@ export default {
     }
 
     function clickedMission(e)
-    {
-      console.log("you clicked the mission at" + this.getLatLng());
-      console.log(this.options.k)
-      self.submitMissionDialog = false
-      self.missionBriefing = true
+    { 
+      if (!self.$store.state.isUserLoggedIn) {
+        self.LoginError=true
+      } else {
+        self.submitMissionDialog = false
+        self.missionBriefing = true
 
-      currentMissionDetails = this.options.k
-      self.missionType = currentMissionDetails.title
-      self.missionQuestion = currentMissionDetails.question
-      self.missionDescription = currentMissionDetails.inputType.options
-      self.missionOsmID = currentMissionDetails.osmId
-      self.missionDifficulty = this.options.difficulty
+        currentMissionDetails = this.options.k
+        self.missionType = currentMissionDetails.title
+        self.missionQuestion = currentMissionDetails.question
+        self.missionPossibleAnswers = currentMissionDetails.inputType.options
+        self.missionOsmID = currentMissionDetails.osmId
+        
+        self.missionDifficulty = this.options.difficulty
+
+        // mission rewards adjustements for difficulty and current level
+        // get Player Level, make adjustements
+      }
     }
 
     // Show "place tower" button on map if any towers are available
@@ -437,7 +474,6 @@ export default {
       //Add all Missions from response to layerGroup TowerMissionGroup
       self.someData.forEach(k => {
         if (k.error_type && !checkMissionSolvedStatus(mySolvedMissions, k.osmId)) {
-
           //Default color blue
           //Mission Mapping (Difficulty)
           let difficulty = 'medium'
@@ -451,14 +487,17 @@ export default {
             difficulty = 'medium'
           }
           if (k.error_type == "poi_name") {
-            strokecolor = 'red'
+            strokecolor = 'OrangeRed'
             difficulty = 'hard'
           }
           if (k.error_type == "language_unknown") {
             strokecolor = 'green'
             difficulty = 'easy'
           }
-
+          if (k.error_type == "religion") {
+            strokecolor = 'Chartreuse'
+            difficulty = 'easy'
+          }
           L.circleMarker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 6, color:strokecolor, k, difficulty}).addTo(TowerMissionGroup).on('click', clickedMission);
         }
       });
@@ -504,6 +543,10 @@ div.overlay--active {
 
 div.dialog__content__active {
   z-index: 1000 !important
+}
+
+div.errorClass {
+  z-index: 2000 !important
 }
 
 </style>
