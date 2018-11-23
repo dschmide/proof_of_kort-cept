@@ -333,7 +333,6 @@ export default {
       // Draw all nearby Missions from response
       currentLocationGroup.clearLayers();
       self.someData.forEach(k => {
-        console.log("check this " + mySolvedMissions+" "+ k.osmId)
         if (k.error_type  && !checkMissionSolvedStatus(mySolvedMissions, k.osmId)) {
           // Default color blue (unrecognized mission type)
           // Mission Mapping (Difficulty)
@@ -387,46 +386,48 @@ export default {
         
         self.missionDifficulty = this.options.difficulty
 
+        // Todo:
         // mission reward adjustements for difficulty and current level here
         // get Player Level, make adjustements
       }
     }
 
-    // Show "place tower" button on map if any towers are available
-    //var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
-    if (myAttributes.towers >= 1) {
-      L.NewPolygonControl = L.Control.extend({
-        options: {
-          position: 'bottomleft'
-        },
-        onAdd: function(map) {
-          var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
-            link = L.DomUtil.create('a', '', container);
-          link.href = '#';
-          link.title = 'Place Tower';
-          link.innerHTML = 'Tower';
-          L.DomEvent.on(link, 'click', L.DomEvent.stop)
-            .on(link, 'click', function() {
-              if (myAttributes.towers >= 1) {
-                console.log('placing tower now...')
-                console.log(map.getCenter())
-                newTower = {
-                  'location': [map.getCenter().lat, map.getCenter().lng]
+    // Show "place tower" button on map if any towers are available and user is logged in
+    if (self.$store.state.isUserLoggedIn) {
+      if (myAttributes.towers >= 1) {
+        L.NewPolygonControl = L.Control.extend({
+          options: {
+            position: 'bottomleft'
+          },
+          onAdd: function(map) {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+              link = L.DomUtil.create('a', '', container);
+            link.href = '#';
+            link.title = 'Place Tower';
+            link.innerHTML = 'Tower';
+            L.DomEvent.on(link, 'click', L.DomEvent.stop)
+              .on(link, 'click', function() {
+                if (myAttributes.towers >= 1) {
+                  console.log('placing tower now...')
+                  console.log(map.getCenter())
+                  newTower = {
+                    'location': [map.getCenter().lat, map.getCenter().lng]
+                  }
+                  // open the Dialogbox before placeing a new tower
+                  self.newTowerLat = map.getCenter().lat
+                  self.newTowerLng = map.getCenter().lng
+                  self.buildTowerDialog = true
+                } else {
+                  console.log('no towers available...')
+                  container.style.display = 'none';
                 }
-                // open the Dialogbox before placeing a new tower
-                self.newTowerLat = map.getCenter().lat
-                self.newTowerLng = map.getCenter().lng
-                self.buildTowerDialog = true
-              } else {
-                console.log('no towers available...')
-                container.style.display = 'none';
-              }
-            });
-          container.style.display = 'block';
-          return container;
-        }
-      });
-      map.addControl(new L.NewPolygonControl());
+              });
+            container.style.display = 'block';
+            return container;
+          }
+        });
+        map.addControl(new L.NewPolygonControl());
+      }
     }
     // initially draw all available towers
     getAllTowers()
@@ -449,7 +450,7 @@ export default {
       TowerMissionGroup.addTo(map)
     }
 
-    // helper function to check if clicked mission is already solved
+    // helper function to check if a mission (osmID) is already solved
     function checkMissionSolvedStatus(arr, val) {
       return arr.some(function(arrVal) {
         return val.toString() === arrVal.osmID;
@@ -505,10 +506,8 @@ export default {
       console.log("getting missions failed")
     });
 
-    }
-    
+    } 
   }
-
 }
 
 </script>
