@@ -95,7 +95,7 @@
         type="error"
         dismissible
       >
-        Error getting Account Data. Please Login first
+        Error getting Account Data. Please Login or Sign up first
       </v-alert>
   </div>
 </template>
@@ -199,6 +199,7 @@ export default {
         self.$emit("updateSolvedMissions");
         this.missionRewardDialog = true;
         self.$emit("reloadTowers");
+        self.$emit("reloadNearbyMissions");
       });
     },
     // This Function closes the reward dialog box that opens after solving a mission
@@ -207,7 +208,7 @@ export default {
       this.missionRewardDialog = false
       this.missionOsmID = ''
       this.missionAnswer = ''
-
+      
       //get current Attributes from profile
       var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
       myAttributes.experience = parseInt(myAttributes.experience) + parseInt(this.missionExperienceReward)
@@ -221,7 +222,6 @@ export default {
         },
         myAttributes.id,
       )
-      var self = this
     },
   },
 
@@ -281,18 +281,14 @@ export default {
         ext: 'png',
       }).addTo(map);
 
-    // remove the Leaflet attribution prefix
-    /*
-    MapAttributionControl = map.attributionControl;
-    MapAttributionControl.setPrefix('');
-    */
+    // remove the "Leaflet" attribution prefix
     var myAttribution = L.control.attribution({prefix: '', position: 'bottomright'}).addTo(map);
     
-    //Geolocation and Marker 
-    //Here the browser attempts to return a geolocation and asks the user for permission
-    map.locate({setView: true, maxZoom: 15, enableHighAccuracy:false, timeout:60000, maximumAge:Infinity});
+    // Geolocation and Marker 
+    // Here the browser attempts to return a geolocation and asks the user for permission
+    map.locate({setView: true, maxZoom: 15, enableHighAccuracy:false, timeout:5000, maximumAge:0});
 
-    // Get all my previously solved Missions for comparison
+    // Get all my previously solved Missions
     mySolvedMissions = await getMySolvedMissions()
 
     // This function updates the List of solved Missions via the eventhub
@@ -300,12 +296,16 @@ export default {
       mySolvedMissions = await getMySolvedMissions()
     })
     
-
+    // This function retrieves the list of all previously solved Missions by this User from the backend Server
     async function getMySolvedMissions() {
-      var mySolvedMissions = await MissionService.getSolvedMissions()
-      console.log('requesting all my solved missions')
-      return mySolvedMissions.data
+      let myMissions = await MissionService.getSolvedMissions()
+      return myMissions.data
     }
+
+    // This function adds all nearby Missions to the map via the eventhub
+    this.$on("reloadNearbyMissions", async function(){
+      getNearbyMissions()
+    })
     
     // Add Missions from current location
     async function getNearbyMissions() {
@@ -316,7 +316,6 @@ export default {
         // Sight range is equal to 5000 (base range) + any upgrades bought
         range = parseInt(myAttributes.sight_range)
       }
-      console.log('sight range' + range)
       self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+currentLatitude+'&lon='+currentLongitude+'&radius='+range+'&limit=100&lang=en', {foo: 'bar'}).then(response => {
 
       // get status
@@ -331,12 +330,13 @@ export default {
       // get body data
       self.someData = response.body;
 
-      //Draw all nearby Missions from response
+      // Draw all nearby Missions from response
       currentLocationGroup.clearLayers();
       self.someData.forEach(k => {
+        console.log("check this " + mySolvedMissions+" "+ k.osmId)
         if (k.error_type  && !checkMissionSolvedStatus(mySolvedMissions, k.osmId)) {
-          //Default color blue
-          //Mission Mapping (Difficulty)
+          // Default color blue (unrecognized mission type)
+          // Mission Mapping (Difficulty)
           let difficulty = 'medium'
           let strokecolor =  'blue'
           if (k.error_type == "missing_track_type") {
@@ -387,7 +387,7 @@ export default {
         
         self.missionDifficulty = this.options.difficulty
 
-        // mission rewards adjustements for difficulty and current level
+        // mission reward adjustements for difficulty and current level here
         // get Player Level, make adjustements
       }
     }
