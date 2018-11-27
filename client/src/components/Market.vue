@@ -10,7 +10,6 @@
           </div>
         </div>
       
-      <v-card>
         <v-container
           fluid
           grid-list-md
@@ -45,7 +44,6 @@
             </v-flex>
           </v-layout>
         </v-container>
-      </v-card>
       </div>
     </v-flex>
   </v-layout>
@@ -71,8 +69,8 @@ export default {
       cards: [
         { type: 'tower', cost: 50, title: 'Buy 1 Tower', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
         { type: 'landmark', cost: 500, title: 'Buy 1 Landmark', src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg', flex: 6 },
-        { type: 'vrange', cost: 150, title: 'Vision Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/plane.jpg', flex: 6 },
-        { type: 'trange', cost: 150, title: 'Tower Range upgrade', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
+        { type: 'vrange', cost: 150, title: 'Upgrade Vision Range', src: 'https://cdn.vuetifyjs.com/images/cards/plane.jpg', flex: 6 },
+        { type: 'trange', cost: 150, title: 'Upgrade Tower Range', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
       ]
     }
   },

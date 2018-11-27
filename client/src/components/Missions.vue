@@ -14,7 +14,7 @@
           </v-card-text>
           <v-card-actions>
             <v-btn color="red" flat @click.stop="buildTowerDialog=false">Cancel</v-btn>
-            <v-btn color="primary" class="light-green" @click="placeTower">Confirm</v-btn>
+            <v-btn color="primary" class="light-green" flat @click="placeTower">Confirm</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -33,6 +33,7 @@
           </v-card-text>
           <v-card-actions>
             <v-btn color="primary" flat @click.stop="missionBriefing=false">Not now</v-btn>
+            <v-spacer></v-spacer>
             <v-btn color="primary" dark class="light-green" flat @click.stop="openMission">Solve!</v-btn>
           </v-card-actions>
         </v-card>
@@ -58,6 +59,7 @@
           </v-card-text>
           <v-card-actions>
             <v-btn color="primary" flat @click.stop="submitMissionDialog=false">Close</v-btn>
+            <v-spacer></v-spacer>
             <v-btn color="primary" dark class="light-green" flat @click="submitMission">Submit</v-btn>
           </v-card-actions>
         </v-card>
@@ -75,6 +77,7 @@
             + {{missionExperienceReward}} Experience <br>
           </v-card-text>
           <v-card-actions>
+            <v-spacer></v-spacer>
             <v-btn color="primary" dark class="light-green" flat @click="closeReward">Ok</v-btn>
           </v-card-actions>
         </v-card>
@@ -106,7 +109,7 @@ import TowerService from '@/services/TowerService'
 
 
 const startPoint = [47.233498, 8.736205];
-const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; &copy; <a href="https://github.com/CartoDB/CartoDB-basemaps/blob/master/LICENSE.txt">Map CC-BY</a>, <a href="https://opendatacommons.org/licenses/odbl/">Data ODbL </a> &vert; v1'
+const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; <a href="https://github.com/CartoDB/CartoDB-basemaps/blob/master/LICENSE.txt">Map CC-BY</a> &vert; <a href="https://opendatacommons.org/licenses/odbl/">Data ODbL </a> &vert; v1'
 const tileLayerURL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 
 
