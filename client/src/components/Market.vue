@@ -1,7 +1,7 @@
 <template>
   <v-layout column>
     <v-flex md6 offset-md3 xs12>
-      <div class="white elevation-2">
+      <div class="white elevation-0">
         <div class="pl-4 pr-4 pt-1 pb-2">
           <div>
             <h3 class="headline mb-0">Market</h3>
@@ -28,14 +28,24 @@
                   >
                     <v-layout fill-height>
                       <v-flex xs12 align-end flexbox>
-                        <span class="headline black--text" v-text="card.title"></span>
+                        <span class="h2" v-text="card.title"></span>
+                        <br>
+
+                        <div class="pt-1">
+                        <img
+                          :src="card.imagePath" 
+                          width=50
+                          height=auto
+                        >
+                        </img>
+                        </div>
                       </v-flex>
                     </v-layout>
                   </v-container>
 
                 <v-card-actions>
-                  {{card.cost}} Koins
                   <v-spacer></v-spacer>
+                  {{card.cost}} Koins
                   <v-btn icon @click.stop="buyItem(card.type)">
                     <v-icon>add_circle</v-icon>
                   </v-btn>
@@ -53,6 +63,7 @@
 import UserAttributesService from '@/services/UserAttributesService'
 
 
+
 export default {
   data () {
     return {
@@ -67,10 +78,12 @@ export default {
       currentLevel: 1,
 
       cards: [
-        { type: 'tower', cost: 50, title: 'Buy 1 Tower', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
-        { type: 'landmark', cost: 500, title: 'Buy 1 Landmark', src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg', flex: 6 },
-        { type: 'vrange', cost: 150, title: 'Upgrade Vision Range', src: 'https://cdn.vuetifyjs.com/images/cards/plane.jpg', flex: 6 },
-        { type: 'trange', cost: 150, title: 'Upgrade Tower Range', src: 'https://cdn.vuetifyjs.com/images/cards/house.jpg', flex: 6 },
+        { type: 'tower', cost: 50, title: 'Buy 1 Tower', flex: 4, imagePath: require('@/assets/tower.png') },
+        /*
+        { type: 'landmark', cost: 500, title: 'Buy 1 Landmark', src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg', flex: 4 },
+        */
+        { type: 'vrange', cost: 150, title: 'Upgrade Vision Range', flex: 4 },
+        { type: 'trange', cost: 150, title: 'Upgrade Tower Range', flex: 4 },
       ]
     }
   },

@@ -126,6 +126,9 @@ var newTower
 export default {
   data() {
     return {
+      // Leaflet map images
+      towerImage: require('@/assets/tower.png'),
+
       // Location Error
       LocationError: false,
       // Login Error
@@ -249,6 +252,7 @@ export default {
     var CircleGroup = L.layerGroup();
     var currentLocationGroup = L.layerGroup();
     var TowerMissionGroup = L.layerGroup();
+    var LeafletTowersIconsGroup = L.layerGroup();
 
     navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions);
     
@@ -279,14 +283,33 @@ export default {
     var map = L.map('map', {attributionControl: false}).setView(startPoint, 15),
       tilelayer = L.tileLayer(tileLayerURL, {
         attribution: attributionForMap,
-        minZoom: 9,
+        minZoom: 8,
         maxZoom: 18,
         ext: 'png',
       }).addTo(map);
 
     // remove the "Leaflet" attribution prefix
     var myAttribution = L.control.attribution({prefix: '', position: 'bottomright'}).addTo(map);
-    
+
+    // test draw tower
+    /*
+    placeTowerIconOnMap(47.2499721, 8.699938399999999)
+    */
+
+    // This function draws a tower on the LeafletTowersIconsGroup
+    async function placeTowerIconOnMap(inLat, inLon) {
+      var towerLat = inLat
+      var towerLon = inLon
+      var towerIcon = L.icon({
+          iconUrl:      self.towerImage,
+          iconSize:     [18, 30], // size of the icon
+          iconAnchor:   [9, 15], // point of the icon which will correspond to marker's location
+          shadowAnchor: [4, 62],  // the same for the shadow
+          popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+      });
+      L.marker([towerLat, towerLon], {icon: towerIcon}).addTo(LeafletTowersIconsGroup);
+    }
+
     // Geolocation and Marker 
     // Here the browser attempts to return a geolocation and asks the user for permission
     map.locate({setView: true, maxZoom: 15, enableHighAccuracy:false, timeout:5000, maximumAge:0});
@@ -445,12 +468,15 @@ export default {
       var allTowers = await TowerService.getMyTowers()
 
       TowerMissionGroup.clearLayers();
+      LeafletTowersIconsGroup.clearLayers()
       allTowers.data.forEach(t=> {
         if (t.location.length > 0) {
           getMissionsFromTower(t.location[0], t.location[1])
+          placeTowerIconOnMap(t.location[0], t.location[1])
         }
       })
       TowerMissionGroup.addTo(map)
+      LeafletTowersIconsGroup.addTo(map)
     }
 
     // helper function to check if a mission (osmID) is already solved
