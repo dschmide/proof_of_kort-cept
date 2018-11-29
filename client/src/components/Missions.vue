@@ -1,6 +1,24 @@
 <template>
   <div id="app">
     <v-layout row justify-center>
+      <v-dialog v-model="buildLandmarkDialog" max-width="500px">
+        <v-card>
+          <v-card-title>
+            <span>Confirm Placement</span>
+            <v-spacer></v-spacer>
+          </v-card-title>
+          <v-card-text>
+            <span>Are you sure you want to permanently place a Landmark here?</span> <br> <br>
+            {{newLandmarkLat}}, {{newLandmarkLng}}
+            <v-spacer></v-spacer>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="red" flat @click.stop="buildLandmarkDialog=false">Cancel</v-btn>
+            <v-btn color="primary" class="light-green" flat @click="placeLandmark">Confirm</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-dialog v-model="buildTowerDialog" max-width="500px">
         <v-card>
           <v-card-title>
@@ -8,7 +26,7 @@
             <v-spacer></v-spacer>
           </v-card-title>
           <v-card-text>
-            <span>Are you sure you want to permanently place a tower here?</span> <br> <br>
+            <span>Are you sure you want to permanently place a Tower here?</span> <br> <br>
             {{newTowerLat}}, {{newTowerLng}}
             <v-spacer></v-spacer>
           </v-card-text>
@@ -106,6 +124,7 @@
 import UserAttributesService from '@/services/UserAttributesService'
 import MissionService from '@/services/MissionService'
 import TowerService from '@/services/TowerService'
+import LandmarkService from '@/services/LandmarkService'
 
 
 const startPoint = [47.233498, 8.736205];
@@ -122,12 +141,14 @@ var geolocationOptions = {
 // Mission Briefing and solving Mission
 var currentMissionDetails = ''
 var newTower
+var newLandmark
 
 export default {
   data() {
     return {
       // Leaflet map images
       towerImage: require('@/assets/tower.png'),
+      landmarkImage: require('@/assets/landmark.png'),
 
       // Location Error
       LocationError: false,
@@ -139,9 +160,13 @@ export default {
       missionBriefing: false,
       missionRewardDialog: false,
       buildTowerDialog: false,
+      buildLandmarkDialog: false,
 
       newTowerLat: 0,
       newTowerLng: 0,
+
+      newLandmarkLat: 0,
+      newLandmarkLng: 0,
       
       missionQuestion: '',
       missionType: '',
@@ -165,6 +190,25 @@ export default {
     }
   },
   methods: {
+    // This Function sends a created Landmark to the backend, updates the UserAttributes and redraws all Landmarks
+    async placeLandmark() {
+      var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+      
+      // Create the tower on the backend
+      LandmarkService.newLandmark(newLandmark)
+
+      // Update the UserAttributes
+      myAttributes.landmarks = parseInt(myAttributes.landmarks) - 1
+      UserAttributesService.updateUserAttributes(
+        {
+        'landmarks': myAttributes.landmarks,
+        },
+        myAttributes.id,
+      )
+      this.buildLandmarkDialog = false
+      var self = this
+      self.$emit("reloadLandmarks");
+    },
     // This Function sends a created tower to the backend, updates the UserAttributes and redraws all missions from all towers
     async placeTower() {
       
@@ -253,6 +297,7 @@ export default {
     var currentLocationGroup = L.layerGroup();
     var TowerMissionGroup = L.layerGroup();
     var LeafletTowersIconsGroup = L.layerGroup();
+    var LeafletLandmarksIconsGroup = L.layerGroup();
 
     navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions);
     
@@ -291,10 +336,26 @@ export default {
     // remove the "Leaflet" attribution prefix
     var myAttribution = L.control.attribution({prefix: '', position: 'bottomright'}).addTo(map);
 
-    // test draw tower
+    // test draw landmark
     /*
-    placeTowerIconOnMap(47.2499721, 8.699938399999999)
+    placeLandmarkIconOnMap(47.2499721, 8.699938399999999, test)
     */
+
+    // This function draws a Landmark on the LeafletLandmarksIconsGroup
+    async function placeLandmarkIconOnMap(inLat, inLon, inLabel) {
+      var landmarkLat = inLat
+      var landmarkLon = inLon
+      var landmarkLabel = inLabel
+      var landmarkIcon = L.icon({
+          iconUrl:      self.landmarkImage,
+          iconSize:     [38, 42], // size of the icon
+          iconAnchor:   [19, 21], // point of the icon which will correspond to marker's location
+          shadowAnchor: [4, 62],  // the same for the shadow
+          popupAnchor:  [19, -20] // point from which the popup should open relative to the iconAnchor
+      });
+      //L.marker([towerLat, towerLon], {icon: landmarkIcon}).addTo(LeafletLandmarksIconsGroup);
+      L.marker([landmarkLat, landmarkLon], {icon: landmarkIcon, name:landmarkLabel}).addTo(map).on('click', clickedLandmark).bindTooltip(landmarkLabel, {direction:'top', permanent:true, offset:[0,-20] }).openTooltip();
+    }
 
     // This function draws a tower on the LeafletTowersIconsGroup
     async function placeTowerIconOnMap(inLat, inLon) {
@@ -396,8 +457,13 @@ export default {
 
     }
 
-    function clickedMission(e)
-    { 
+    // This function is triggered when a Player has clicked a Landmark
+    function clickedLandmark(e) {
+      console.log('you clicked landmark of: ' + this.options.name)
+    }
+
+    // This function is triggered when a Player has clicked a mission
+    function clickedMission(e) { 
       if (!self.$store.state.isUserLoggedIn) {
         self.LoginError=true
       } else {
@@ -455,6 +521,46 @@ export default {
         map.addControl(new L.NewPolygonControl());
       }
     }
+    // Show "place landmark" button on map if any landmarks are available and user is logged in
+    if (self.$store.state.isUserLoggedIn) {
+      if (myAttributes.landmarks >= 1) {
+        L.NewPolygonControl = L.Control.extend({
+          options: {
+            position: 'bottomleft'
+          },
+          onAdd: function(map) {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+              link = L.DomUtil.create('a', '', container);
+            link.href = '#';
+            link.title = 'Place Landmark';
+            link.innerHTML = 'LMK';
+            L.DomEvent.on(link, 'click', L.DomEvent.stop)
+              .on(link, 'click', function() {
+                if (myAttributes.landmarks >= 1) {
+                  console.log('placing landmark now...')
+                  console.log(map.getCenter())
+                  newLandmark = {
+                    'location': [map.getCenter().lat, map.getCenter().lng],
+                    'label': self.$store.state.user,
+                    'owner': self.$store.state.user,
+                  }
+                  // open the Dialogbox before placeing a new tower
+                  self.newLandmarkLat = map.getCenter().lat
+                  self.newLandmarkLng = map.getCenter().lng
+                  self.buildLandmarkDialog = true
+                } else {
+                  console.log('no towers available...')
+                  container.style.display = 'none';
+                }
+              });
+            container.style.display = 'block';
+            return container;
+          }
+        });
+        map.addControl(new L.NewPolygonControl());
+      }
+    }
+
     // initially draw all available towers
     getAllTowers()
 
@@ -477,6 +583,27 @@ export default {
       })
       TowerMissionGroup.addTo(map)
       LeafletTowersIconsGroup.addTo(map)
+    }
+
+    // initially draw all available landmarks
+    getAllLandmarks()
+
+    // This function is called when the eventhub emits the reloadLandmarks event
+    this.$on("reloadLandmarks", function(){
+      getAllLandmarks();
+    })
+    
+    // This Function retrieves and adds all Missions from all Towers to the map
+    async function getAllLandmarks() {
+      var allLandmarks = await LandmarkService.getAllLandmarks()
+
+      LeafletLandmarksIconsGroup.clearLayers()
+      allLandmarks.data.forEach(t=> {
+        if (t.location.length > 0) {
+          placeLandmarkIconOnMap(t.location[0], t.location[1], t.label)
+        }
+      })
+      LeafletLandmarksIconsGroup.addTo(map)
     }
 
     // helper function to check if a mission (osmID) is already solved

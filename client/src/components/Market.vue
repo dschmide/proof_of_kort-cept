@@ -34,8 +34,8 @@
                         <div class="pt-1">
                         <img
                           :src="card.imagePath" 
-                          width=50
-                          height=auto
+                          width=auto
+                          height=100
                         >
                         </img>
                         </div>
@@ -44,6 +44,9 @@
                   </v-container>
 
                 <v-card-actions>
+                  <v-btn icon @click.stop="giveInfo(card.type)">
+                    <v-icon>info</v-icon>
+                  </v-btn>
                   <v-spacer></v-spacer>
                   {{card.cost}} Koins
                   <v-btn icon @click.stop="buyItem(card.type)">
@@ -79,9 +82,9 @@ export default {
 
       cards: [
         { type: 'tower', cost: 50, title: 'Buy 1 Tower', flex: 4, imagePath: require('@/assets/tower.png') },
-        /*
-        { type: 'landmark', cost: 500, title: 'Buy 1 Landmark', src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg', flex: 4 },
-        */
+        
+        { type: 'landmark', cost: 500, title: 'Buy 1 Landmark', flex: 4, imagePath: require('@/assets/landmark.png') },
+        
         { type: 'vrange', cost: 150, title: 'Upgrade Vision Range', flex: 4 },
         { type: 'trange', cost: 150, title: 'Upgrade Tower Range', flex: 4 },
       ]
@@ -93,66 +96,107 @@ export default {
 
       switch(itemType) {
       case 'tower':
-          console.log('buying a tower...')
-          let itemPrice = 50
-          if (myAttributes.koins >= itemPrice) {
-            myAttributes.koins = parseInt(myAttributes.koins) - itemPrice
-            myAttributes.towers = parseInt(myAttributes.towers) + 1
+        console.log('buying a tower...')
+        let itemPrice = 50
+        if (myAttributes.koins >= itemPrice) {
+          myAttributes.koins = parseInt(myAttributes.koins) - itemPrice
+          myAttributes.towers = parseInt(myAttributes.towers) + 1
 
-            UserAttributesService.updateUserAttributes(
-              {
-              'koins': myAttributes.koins,
-              'towers': myAttributes.towers,
-              },
-              myAttributes.id,
-            )
-          } else {
-            console.log("warning, you can't afford this item")
-          }
-          break;
+          UserAttributesService.updateUserAttributes(
+            {
+            'koins': myAttributes.koins,
+            'towers': myAttributes.towers,
+            },
+            myAttributes.id,
+          )
+        } else {
+          console.log("warning, you can't afford this item")
+        }
+        break;
 
-      case 'Landmark':
-          console.log('buying Landmark...')
-          break;
+      case 'landmark':
+        console.log('buying Landmark...')
+        var itemPrice = 10
+        if (myAttributes.koins >= itemPrice) {
+          myAttributes.koins = parseInt(myAttributes.koins) - itemPrice
+          myAttributes.landmarks = parseInt(myAttributes.landmarks) + 1
+
+          UserAttributesService.updateUserAttributes(
+            {
+            'koins': myAttributes.koins,
+            'landmarks': myAttributes.landmarks,
+            },
+            myAttributes.id,
+          )
+        } else {
+          console.log("warning, you can't afford this item")
+        }
+        break;
 
       case 'vrange':
-          console.log('buying vision range...')
-          if (myAttributes.koins >= 150) {
-            myAttributes.koins = parseInt(myAttributes.koins) - 150
-            myAttributes.sight_range = parseInt(myAttributes.sight_range) + 1000
+        console.log('buying vision range...')
+        if (myAttributes.koins >= 150) {
+          myAttributes.koins = parseInt(myAttributes.koins) - 150
+          myAttributes.sight_range = parseInt(myAttributes.sight_range) + 1000
 
-            UserAttributesService.updateUserAttributes(
-              {
-              'koins': myAttributes.koins,
-              'sight_range': myAttributes.sight_range,
-              },
-              myAttributes.id,
-            )
-          } else {
-            console.log("warning, you can't afford this item")
-          }
-          break;
+          UserAttributesService.updateUserAttributes(
+            {
+            'koins': myAttributes.koins,
+            'sight_range': myAttributes.sight_range,
+            },
+            myAttributes.id,
+          )
+        } else {
+          console.log("warning, you can't afford this item")
+        }
+        break;
 
       case 'trange':
-          console.log('buying tower range...')
-          if (myAttributes.koins >= 150) {
-            myAttributes.koins = parseInt(myAttributes.koins) - 150
-            myAttributes.tower_range = parseInt(myAttributes.tower_range) + 1000
+        console.log('buying tower range...')
+        if (myAttributes.koins >= 150) {
+          myAttributes.koins = parseInt(myAttributes.koins) - 150
+          myAttributes.tower_range = parseInt(myAttributes.tower_range) + 1000
 
-            UserAttributesService.updateUserAttributes(
-              {
-              'koins': myAttributes.koins,
-              'tower_range': myAttributes.tower_range,
-              },
-              myAttributes.id,
-            )
-          } else {
-            console.log("warning, you can't afford this item")
-          }
-          break;
+          UserAttributesService.updateUserAttributes(
+            {
+            'koins': myAttributes.koins,
+            'tower_range': myAttributes.tower_range,
+            },
+            myAttributes.id,
+          )
+        } else {
+          console.log("warning, you can't afford this item")
+        }
+        break;
 
       default:
           console.log('buying something else')
+      }
+    },
+    async giveInfo(itemType) {
+      switch(itemType) {
+      case 'tower':
+        console.log('info for: ' + itemType)
+        
+        break;
+
+      case 'landmark':
+        console.log('info for: ' + itemType)
+        
+        break;
+
+      case 'vrange':
+        console.log('info for: ' + itemType)
+        
+        break;
+
+      case 'trange':
+        console.log('info for: ' + itemType)
+        
+        break;
+
+      default:
+          console.log('info for something else')
       }
     }
   },
@@ -182,6 +226,10 @@ export default {
 
 .error{
    color:red;
+ }
+
+ .background{
+   color: white;
  }
 
 </style>

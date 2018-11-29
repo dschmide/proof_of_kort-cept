@@ -1,7 +1,7 @@
 <template>
   <v-layout column>
     <v-flex md6 offset-md3 xs12>
-      <div class="white elevation-2">
+      <div class="white elevation-0">
         <div class="pl-4 pr-4 pt-1 pb-2">
           <div>
             <br>
@@ -19,6 +19,8 @@
           Koins: {{currentKoins}} <br>
           <br>
           Towers: {{currentTowers}} <br>
+          <br>
+          Landmarks: {{currentLandmarks}} <br>
           <br> <br>
           Sight Range: {{currentSightRange}} meters<br>
           Tower Range: {{currentTowerRange}} meters<br>
@@ -40,6 +42,7 @@ export default {
       currentTowers: 0,
       currentSightRange: 0,
       currentTowerRange: 0,
+      currentLandmarks: 0,
 
       currentExperiencePercent: 0,
       currentLevel: 1,
@@ -58,6 +61,7 @@ export default {
     this.currentExperience = myAttributes.experience
     this.currentKoins = myAttributes.koins
     this.currentTowers = myAttributes.towers
+    this.currentLandmarks = myAttributes.landmarks
 
     this.currentSightRange = myAttributes.sight_range
     this.currentTowerRange = myAttributes.tower_range
