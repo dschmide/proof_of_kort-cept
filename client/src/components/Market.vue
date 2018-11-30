@@ -1,7 +1,8 @@
 <template>
+  <div id=content>
   <v-layout column>
     <v-flex md6 offset-md3 xs12>
-      <div class="white elevation-0">
+      <div id='market' class="white elevation-0">
         <div class="pl-4 pr-4 pt-1 pb-2">
           <div>
             <h3 class="headline mb-0">Market</h3>
@@ -9,7 +10,23 @@
             </div>
           </div>
         </div>
-      
+        <v-dialog v-model="showInfoBox" max-width="500px">
+          <v-card>
+            <v-card-title>
+              <span>Info</span>
+              <v-spacer></v-spacer>
+            </v-card-title>
+            <v-card-text>
+              <span>{{showInfo}}</span> <br> <br>
+              <v-spacer></v-spacer>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" class="light-green" flat @click.stop="showInfoBox=false">Ok</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        
         <v-container
           fluid
           grid-list-md
@@ -44,7 +61,7 @@
                   </v-container>
 
                 <v-card-actions>
-                  <v-btn icon @click.stop="giveInfo(card.type)">
+                  <v-btn icon @click.stop="giveInfo(card.type, card)">
                     <v-icon>info</v-icon>
                   </v-btn>
                   <v-spacer></v-spacer>
@@ -60,6 +77,25 @@
       </div>
     </v-flex>
   </v-layout>
+  <v-alert class="errorClass"
+        v-model="itemBoughtSuccess"
+        type="success"
+        dismissible
+        transition="scale-transition"
+        width=400
+      >
+        You got a {{itemBought}}
+      </v-alert>
+      <v-alert class="errorClass"
+        v-model="itemBoughtError"
+        type="error"
+        dismissible
+        transition="scale-transition"
+        width=400
+      >
+        You do not have enough Koins to get a {{itemBought}}
+      </v-alert>
+   </div>
 </template>
 
 <script>
@@ -70,6 +106,15 @@ import UserAttributesService from '@/services/UserAttributesService'
 export default {
   data () {
     return {
+      // Info Box
+      showInfo: '',
+      showInfoBox: false,
+
+      // alerts
+      itemBought: 0,
+      itemBoughtSuccess: false,
+      itemBoughtError: false,
+
       // Mission Dialog Boxes
       currentExperience: 0,
       currentKoins: 0,
@@ -81,12 +126,10 @@ export default {
       currentLevel: 1,
 
       cards: [
-        { type: 'tower', cost: 50, title: 'Buy 1 Tower', flex: 4, imagePath: require('@/assets/tower.png') },
-        
-        { type: 'landmark', cost: 500, title: 'Buy 1 Landmark', flex: 4, imagePath: require('@/assets/landmark.png') },
-        
-        { type: 'vrange', cost: 150, title: 'Upgrade Vision Range', flex: 4 },
-        { type: 'trange', cost: 150, title: 'Upgrade Tower Range', flex: 4 },
+        { type: 'tower', cost: 50, title: 'Buy 1 Tower', flex: 4, imagePath: require('@/assets/tower.png'), info: "A Tower allows you to extend your vision range into territories beyond your Sight Range" },
+        { type: 'landmark', cost: 500, title: 'Buy 1 Landmark', flex: 4, imagePath: require('@/assets/landmark.png'), info: "All Players can see a Landmark placed by you and bask in its glory" },
+        { type: 'vrange', cost: 150, title: 'Upgrade Vision Range', flex: 4, info: "Extends your Vision Range by 1000 Meters"},
+        { type: 'trange', cost: 150, title: 'Upgrade Tower Range', flex: 4, info: "Extends the Range of all your Towers by 1000 Meters" },
       ]
     }
   },
@@ -96,8 +139,8 @@ export default {
 
       switch(itemType) {
       case 'tower':
-        console.log('buying a tower...')
-        let itemPrice = 50
+        this.itemBought = itemType
+        var itemPrice = 50
         if (myAttributes.koins >= itemPrice) {
           myAttributes.koins = parseInt(myAttributes.koins) - itemPrice
           myAttributes.towers = parseInt(myAttributes.towers) + 1
@@ -107,16 +150,17 @@ export default {
             'koins': myAttributes.koins,
             'towers': myAttributes.towers,
             },
-            myAttributes.id,
+            myAttributes.id, 
           )
+          this.itemBoughtSuccess = true
         } else {
-          console.log("warning, you can't afford this item")
+          this.itemBoughtError = true
         }
         break;
 
       case 'landmark':
-        console.log('buying Landmark...')
-        var itemPrice = 10
+        this.itemBought = itemType
+        var itemPrice = 500
         if (myAttributes.koins >= itemPrice) {
           myAttributes.koins = parseInt(myAttributes.koins) - itemPrice
           myAttributes.landmarks = parseInt(myAttributes.landmarks) + 1
@@ -128,13 +172,14 @@ export default {
             },
             myAttributes.id,
           )
+          this.itemBoughtSuccess = true
         } else {
-          console.log("warning, you can't afford this item")
+          this.itemBoughtError = true
         }
         break;
 
       case 'vrange':
-        console.log('buying vision range...')
+        this.itemBought = 'Sight Range upgrade'
         if (myAttributes.koins >= 150) {
           myAttributes.koins = parseInt(myAttributes.koins) - 150
           myAttributes.sight_range = parseInt(myAttributes.sight_range) + 1000
@@ -146,14 +191,15 @@ export default {
             },
             myAttributes.id,
           )
+          this.itemBoughtSuccess = true
         } else {
-          console.log("warning, you can't afford this item")
+          this.itemBoughtError = true
         }
         break;
 
       case 'trange':
-        console.log('buying tower range...')
-        if (myAttributes.koins >= 150) {
+          this.itemBought = 'Tower Range upgrade'
+          if (myAttributes.koins >= 150) {
           myAttributes.koins = parseInt(myAttributes.koins) - 150
           myAttributes.tower_range = parseInt(myAttributes.tower_range) + 1000
 
@@ -164,40 +210,25 @@ export default {
             },
             myAttributes.id,
           )
+          this.itemBoughtSuccess = true
         } else {
-          console.log("warning, you can't afford this item")
+          this.itemBoughtError = true
         }
         break;
 
       default:
           console.log('buying something else')
       }
+      setTimeout(function () {
+        this.itemBoughtSuccess = false
+        this.itemBoughtError = false
+      }, 2000);
     },
-    async giveInfo(itemType) {
-      switch(itemType) {
-      case 'tower':
-        console.log('info for: ' + itemType)
-        
-        break;
-
-      case 'landmark':
-        console.log('info for: ' + itemType)
-        
-        break;
-
-      case 'vrange':
-        console.log('info for: ' + itemType)
-        
-        break;
-
-      case 'trange':
-        console.log('info for: ' + itemType)
-        
-        break;
-
-      default:
-          console.log('info for something else')
-      }
+    async giveInfo(itemType, inCard) {
+      var selectedCard = inCard
+      console.log('info for: ' + itemType)
+      this.showInfo = selectedCard.info
+      this.showInfoBox = true
     }
   },
 
@@ -220,16 +251,28 @@ export default {
 
 <style scoped>
 
+#market {
+  position: absolute;
+  top: 66px;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+}
+
 .card__media__background {
   background-size: auto 100%;
 }
 
-.error{
-   color:red;
- }
+.background{
+  color: white;
+}
 
- .background{
-   color: white;
- }
+div.errorClass {
+  z-index: 2000 !important;
+  top: 66px;
+  width: 90%;
+  position: fixed;
+}
 
 </style>

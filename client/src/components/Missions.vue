@@ -142,6 +142,7 @@ var geolocationOptions = {
 var currentMissionDetails = ''
 var newTower
 var newLandmark
+var myAttributes
 
 export default {
   data() {
@@ -277,15 +278,17 @@ export default {
 
   // This code is executed when the Missions.vue is mounted on the page
   async mounted() {
-    var myAttributes
     var mySolvedMissions
     // make closure of "this"
     var self = this;
-
+    
+    console.log('get Attributes if logged in...')
     if (this.$store.state.isUserLoggedIn) {
-      console.log('get Attributes if logged in...')
+      console.log('Player is logged in')
       myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+      console.log(myAttributes)
     } else {
+      console.log('Player is not logged in')
       self.LoginError=true
     }
 
@@ -396,11 +399,10 @@ export default {
     
     // Add Missions from current location
     async function getNearbyMissions() {
-      let range = 5000
+      var range = 5000
       if (self.$store.state.isUserLoggedIn) {
-        console.log('get Attributes if logged in...')
-        myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
-        // Sight range is equal to 5000 (base range) + any upgrades bought
+        //myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+        console.log(myAttributes)
         range = parseInt(myAttributes.sight_range)
       }
       self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+currentLatitude+'&lon='+currentLongitude+'&radius='+range+'&limit=100&lang=en', {foo: 'bar'}).then(response => {
@@ -616,7 +618,6 @@ export default {
     // Add Missions from a Tower
     async function getMissionsFromTower(towerLat, towerLng) {
       var range = parseInt(myAttributes.tower_range)
-      console.log('tower range' + range)
       self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+towerLat+'&lon='+towerLng+'&radius='+range+'&limit=100&lang=en', {foo: 'bar'}).then(response => {
 
       // get status
@@ -668,6 +669,7 @@ export default {
 
 </script>
 <style type='text/css'>
+
 body {
   margin: 0;
   padding: 0;
