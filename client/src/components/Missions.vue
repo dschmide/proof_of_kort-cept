@@ -120,12 +120,12 @@
       </v-alert>
   </div>
 </template>
+
 <script>
 import UserAttributesService from '@/services/UserAttributesService'
 import MissionService from '@/services/MissionService'
 import TowerService from '@/services/TowerService'
 import LandmarkService from '@/services/LandmarkService'
-
 
 const startPoint = [47.233498, 8.736205];
 const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; <a href="https://github.com/CartoDB/CartoDB-basemaps/blob/master/LICENSE.txt">Map CC-BY</a> &vert; <a href="https://opendatacommons.org/licenses/odbl/">Data ODbL </a> &vert; v1'

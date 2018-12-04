@@ -13,10 +13,15 @@
         <v-dialog v-model="showInfoBox" max-width="500px">
           <v-card>
             <v-card-title>
-              <span>Info</span>
               <v-spacer></v-spacer>
             </v-card-title>
+            <img
+              :src="showInfoImage" 
+              width=auto
+              height=100
+            >
             <v-card-text>
+              
               <span>{{showInfo}}</span> <br> <br>
               <v-spacer></v-spacer>
             </v-card-text>
@@ -109,6 +114,7 @@ export default {
       // Info Box
       showInfo: '',
       showInfoBox: false,
+      showInfoImage: '',
 
       // alerts
       itemBought: 0,
@@ -229,6 +235,7 @@ export default {
       console.log('info for: ' + itemType)
       this.showInfo = selectedCard.info
       this.showInfoBox = true
+      this.showInfoImage = selectedCard.imagePath
     }
   },
 
