@@ -71,18 +71,18 @@ export default {
             this.$store.dispatch('setToken', response.data.token)
             this.$store.dispatch('setUser', this.displayname)
             this.$router.push({
-              name: 'map' 
+              name: 'welcome' 
             })
             console.log(response.data)
 
-            // Create new Profile
+            // Create fresh Profile
             UserAttributesService.newUser(
             {
               "koins": 0,
               "experience": 0,
               "towers": 0,
-              "tower_range": 5000,
-              "sight_range": 5000,
+              "tower_range": 2000,
+              "sight_range": 2000,
             })
             console.log('fresh profile created')
           })

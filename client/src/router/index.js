@@ -5,6 +5,8 @@ import Login from '@/components/Login'
 import Market from '@/components/Market'
 import Stats from '@/components/Stats'
 import Missions from '@/components/Missions'
+import Welcome from '@/components/Welcome'
+
 
 Vue.use(Router)
 
@@ -43,6 +45,11 @@ export default new Router({
       path: '/missions',
       name: 'missions',
       component: Missions
+    },
+    {
+      path: '/welcome',
+      name: 'welcome',
+      component: Welcome
     }
   ]
 })
