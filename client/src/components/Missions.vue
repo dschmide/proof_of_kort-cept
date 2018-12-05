@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="missions">
     <v-layout row justify-center>
       <v-dialog v-model="buildLandmarkDialog" max-width="500px">
         <v-card>
@@ -193,7 +193,7 @@ export default {
   methods: {
     // This Function sends a created Landmark to the backend, updates the UserAttributes and redraws all Landmarks
     async placeLandmark() {
-      var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+      myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
       
       // Create the tower on the backend
       LandmarkService.newLandmark(newLandmark)
@@ -213,7 +213,7 @@ export default {
     // This Function sends a created tower to the backend, updates the UserAttributes and redraws all missions from all towers
     async placeTower() {
       
-      var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+      myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
 
       // Create the tower on the backend
       TowerService.newTower(newTower)
@@ -261,7 +261,7 @@ export default {
       this.missionAnswer = ''
       
       //get current Attributes from profile
-      var myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+      myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
       myAttributes.experience = parseInt(myAttributes.experience) + parseInt(this.missionExperienceReward)
       myAttributes.koins = parseInt(myAttributes.koins) + parseInt(this.missionKoinReward)
 

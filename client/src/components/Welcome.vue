@@ -106,7 +106,6 @@
 
 <script>
 import UserAttributesService from '@/services/UserAttributesService'
-var myAttributes
 
 export default {
   data () {
@@ -117,6 +116,8 @@ export default {
       // Mission Dialog Boxes
       confirmDialog: false,
       spendPointsDialog: false,
+
+      myAttributes: '',
 
       currentExperience: 0,
       currentTowers: 0,
@@ -132,11 +133,12 @@ export default {
     async confirm(){
       UserAttributesService.updateUserAttributes(
         {
+        'koins': 0,
         'towers': this.currentTowers,
         'sight_range': this.currentSightRange,
         'tower_range': this.currentTowerRange,
         },
-        myAttributes.id,
+        this.myAttributes.id,
       )
       this.$router.push({
         name: 'missions'
@@ -188,18 +190,32 @@ export default {
     },
   },
 
+  async created() {
+    this.myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+    console.log('created Welcome')
+    console.log(this.myAttributes)
+  },
+
   // This Code is executed when the Stats component is mounted
   async mounted() {
-    myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+    this.myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
     console.log('Getting Profile Data...')
-    console.log(myAttributes)
-    this.currentExperience = myAttributes.experience
-    this.currentKoins = myAttributes.koins
-    this.currentTowers = parseInt(myAttributes.towers)
-    this.currentLandmarks = myAttributes.landmarks
+    console.log(this.myAttributes)
+    if (parseInt(this.myAttributes.koins) == -1) {
+      console.log('mounted Welcome')      
+    } else {
+      this.$router.push({
+        name: 'stats' 
+      })
+    }
 
-    this.currentSightRange = parseInt(myAttributes.sight_range)
-    this.currentTowerRange = parseInt(myAttributes.tower_range)
+    this.currentExperience = this.myAttributes.experience
+    this.currentKoins = this.myAttributes.koins
+    this.currentTowers = parseInt(this.myAttributes.towers)
+    this.currentLandmarks = this.myAttributes.landmarks
+
+    this.currentSightRange = parseInt(this.myAttributes.sight_range)
+    this.currentTowerRange = parseInt(this.myAttributes.tower_range)
   }
 }
 </script>

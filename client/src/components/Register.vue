@@ -78,7 +78,7 @@ export default {
             // Create fresh Profile
             UserAttributesService.newUser(
             {
-              "koins": 0,
+              "koins": -1,
               "experience": 0,
               "towers": 0,
               "tower_range": 2000,
