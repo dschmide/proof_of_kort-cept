@@ -1,7 +1,7 @@
 <template>
   <v-layout column>
     <v-flex md6 offset-md3 xs12>
-      <div class="white elevation-0">
+      <div id='stats' class="white elevation-0">
         <div class="pl-4 pr-4 pt-1 pb-2">
           <div>
             <br>
@@ -97,5 +97,14 @@ export default {
 .error{
    color:red;
  }
+
+ #stats {
+  position: absolute;
+  top: 66px;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+}
 
 </style>
