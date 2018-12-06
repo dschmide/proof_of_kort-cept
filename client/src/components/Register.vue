@@ -70,9 +70,7 @@ export default {
           .then( (response) => {
             this.$store.dispatch('setToken', response.data.token)
             this.$store.dispatch('setUser', this.displayname)
-            this.$router.push({
-              name: 'welcome' 
-            })
+
             console.log(response.data)
 
             // Create fresh Profile
@@ -84,7 +82,12 @@ export default {
               "tower_range": 2000,
               "sight_range": 2000,
             })
-            console.log('fresh profile created')
+            console.log('fresh profile created')            
+          })
+          .then(() => {
+            this.$router.push({
+              name: 'welcome' 
+            })
           })
         })
         .catch((error) => {
