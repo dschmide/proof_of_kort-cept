@@ -11,6 +11,8 @@ export default new Vuex.Store({
     isUserLoggedIn: false,
     toggleVegetation: true,
     toggleUserAreas: true,
+    mapPos: null,
+    mapZoom: null,
   },
 
   mutations: {
@@ -27,25 +29,14 @@ export default new Vuex.Store({
     setUser(state, user) {
       state.user = user
     },
-
-    toggleVegetation(state) {
-      if (state.toggleVegetation) {
-        state.toggleVegetation = false
-      } else {
-        state.toggleVegetation = true
-      }
-      console.log('Vegetation Toggled ' + state.toggleVegetation);
-    },
     
-    toggleUserAreas(state) {
-      if (state.toggleUserAreas) {
-        state.toggleUserAreas = false
-      } else {
-        state.toggleUserAreas = true
-      }
-      console.log('Vegetation Toggled ' + state.toggleUserAreas);
+    saveMapPos(state, MapCenter) {
+      state.mapPos = MapCenter
     },
 
+    saveMapZoom(state, MapZoom) {
+      state.mapZoom = MapZoom
+    },
 
   },
   actions: {
@@ -55,12 +46,11 @@ export default new Vuex.Store({
     setUser({ commit }, user) {
       commit('setUser', user)
     },
-    toggleVegetation({ commit }) {
-      commit('toggleVegetation')
+    saveMapPos({ commit }, MapCenter) {
+      commit('saveMapPos', MapCenter)
     },
-    toggleUserAreas({ commit }) {
-      commit('toggleUserAreas')
+    saveMapZoom({ commit }, MapZoom) {
+      commit('saveMapZoom', MapZoom)
     },
-
   }
 })

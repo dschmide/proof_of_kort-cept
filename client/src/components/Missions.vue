@@ -32,6 +32,7 @@
           </v-card-text>
           <v-card-actions>
             <v-btn color="red" flat @click.stop="buildTowerDialog=false">Cancel</v-btn>
+            <v-spacer></v-spacer>
             <v-btn color="primary" class="light-green" flat @click="placeTower">Confirm</v-btn>
           </v-card-actions>
         </v-card>
@@ -127,7 +128,8 @@ import MissionService from '@/services/MissionService'
 import TowerService from '@/services/TowerService'
 import LandmarkService from '@/services/LandmarkService'
 
-const startPoint = [47.233498, 8.736205];
+var startPoint = [46.714267, 8.222516];
+var mapZoom = 8;
 const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; <a href="https://github.com/CartoDB/CartoDB-basemaps/blob/master/LICENSE.txt">Map CC-BY</a> &vert; <a href="https://opendatacommons.org/licenses/odbl/">Data ODbL </a> &vert; v1'
 const tileLayerURL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 
@@ -275,7 +277,6 @@ export default {
       )
     },
   },
-
   // This code is executed when the Missions.vue is mounted on the page
   async mounted() {
     var mySolvedMissions
@@ -296,6 +297,7 @@ export default {
     var currentLatitude
     var currentLongitude
 
+    // Layer Groups for all map items
     var CircleGroup = L.layerGroup();
     var currentLocationGroup = L.layerGroup();
     var TowerMissionGroup = L.layerGroup();
@@ -327,11 +329,19 @@ export default {
       self.LocationError = true
     }
 
+
+    if (this.$store.state.mapPos != null) {
+      startPoint = [self.$store.state.mapPos.lat, self.$store.state.mapPos.lng]
+    }
+    if (this.$store.state.mapZoom != null) {
+      mapZoom = self.$store.state.mapZoom
+      console.log(startPoint)
+    }
     // init the map object
-    var map = L.map('map', {attributionControl: false}).setView(startPoint, 15),
+    var map = L.map('map', {attributionControl: false}).setView(startPoint, mapZoom),
       tilelayer = L.tileLayer(tileLayerURL, {
         attribution: attributionForMap,
-        minZoom: 8,
+        minZoom: 5,
         maxZoom: 18,
         ext: 'png',
       }).addTo(map);
@@ -339,10 +349,14 @@ export default {
     // remove the "Leaflet" attribution prefix
     var myAttribution = L.control.attribution({prefix: '', position: 'bottomright'}).addTo(map);
 
-    // test draw landmark
-    /*
-    placeLandmarkIconOnMap(47.2499721, 8.699938399999999, test)
-    */
+    map.on('zoomend', function() {
+      self.$store.dispatch('saveMapPos', map.getCenter())
+      self.$store.dispatch('saveMapZoom', map.getZoom())
+    });
+
+    map.on('dragend', function() {
+      self.$store.dispatch('saveMapPos', map.getCenter())
+    });
 
     // This function draws a Landmark on the LeafletLandmarksIconsGroup
     async function placeLandmarkIconOnMap(inLat, inLon, inLabel) {
@@ -376,7 +390,7 @@ export default {
 
     // Geolocation and Marker 
     // Here the browser attempts to return a geolocation and asks the user for permission
-    map.locate({setView: true, maxZoom: 15, enableHighAccuracy:false, timeout:5000, maximumAge:0});
+    map.locate({setView: false, maxZoom: 15, enableHighAccuracy:false, timeout:5000, maximumAge:0});
 
     // Get all my previously solved Missions
     mySolvedMissions = await getMySolvedMissions()
