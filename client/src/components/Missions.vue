@@ -439,8 +439,8 @@ export default {
         if (k.error_type  && !checkMissionSolvedStatus(mySolvedMissions, k.osmId)) {
           // Default color blue (unrecognized mission type)
           // Mission Mapping (Difficulty)
-          let difficulty = 'medium'
-          let strokecolor =  'blue'
+          let difficulty = 'hard'
+          let strokecolor =  'OrangeRed'
           if (k.error_type == "missing_track_type") {
             strokecolor = 'yellow'
             difficulty = 'medium'
@@ -502,7 +502,7 @@ export default {
 
     // Show "place tower" button on map if any towers are available and user is logged in
     if (self.$store.state.isUserLoggedIn) {
-      if (myAttributes.towers >= 1) {
+      if (parseInt(myAttributes.towers) >= 1) {
         L.NewPolygonControl = L.Control.extend({
           options: {
             position: 'bottomleft'
@@ -515,7 +515,7 @@ export default {
             link.innerHTML = 'Tower';
             L.DomEvent.on(link, 'click', L.DomEvent.stop)
               .on(link, 'click', function() {
-                if (myAttributes.towers >= 1) {
+                if (parseInt(myAttributes.towers) >= 1) {
                   console.log('placing tower now...')
                   console.log(map.getCenter())
                   newTower = {
@@ -648,8 +648,8 @@ export default {
         if (k.error_type && !checkMissionSolvedStatus(mySolvedMissions, k.osmId)) {
           //Default color blue
           //Mission Mapping (Difficulty)
-          let difficulty = 'medium'
-          let strokecolor =  'blue'
+          let difficulty = 'hard'
+          let strokecolor =  'OrangeRed'
           if (k.error_type == "missing_track_type") {
             strokecolor = 'yellow'
             difficulty = 'medium'
