@@ -1,6 +1,6 @@
 # client
 
-> a waldmeister extension
+> Masterarbeit
 
 ## Build Setup
 

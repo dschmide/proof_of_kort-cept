@@ -1,3 +1,4 @@
+import datetime
 import os
 import environ
 
@@ -55,6 +56,11 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.authentication.BasicAuthentication',
     ),
+}
+
+# Token Expiration increased
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
 }
 
 MIDDLEWARE = [
