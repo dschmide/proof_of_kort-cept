@@ -39,7 +39,7 @@
     </v-dialog>
     
     <v-flex md6 offset-md3 xs12>
-      <h2> Welcome to Proof of Kort-cept! </h2> <br>
+      <h2> Welcome to Proof of Kort-zept! </h2> <br>
       You may now chose your <b>starting bonus</b> <br> <br>
 
       Choices Remaining: <b> {{choicesRemaining}} </b> <br> <br>

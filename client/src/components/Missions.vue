@@ -38,6 +38,24 @@
         </v-card>
       </v-dialog>
 
+      <v-dialog v-model="missionUnableDialog" max-width="500px">
+        <v-card>
+          <v-card-title>
+            <span>Not enough Experience</span>
+            <v-spacer></v-spacer>
+          </v-card-title>
+          <v-card-text>
+            <span>This Mission is <b> {{missionDifficulty}} </b> </span> <br> <br>
+            <span>You cannot solve this mission, yet!</span> <br>
+            <span>Solve easier Missions before attempting this one</span>
+            <v-spacer></v-spacer>
+          </v-card-text>
+          <v-card-actions class="justify-center">
+            <v-btn color="primary" flat @click.stop="missionUnableDialog=false">Ok</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-dialog v-model="missionBriefing" max-width="500px">
         <v-card>
           <v-card-title>
@@ -47,8 +65,13 @@
           <v-card-text>
             <span>You selected the following Mission: </span> <br>
             <strong> {{missionType}} </strong> <br> <br>
-            <span>This Mission is {{missionDifficulty}} </span>
+            <span>This Mission is <b> {{missionDifficulty}} </b> </span>
             <v-spacer></v-spacer>
+            <div v-if=missionRewardsReduced>
+              <br> <br>
+              <b> Be aware! </b> It is recommended that you solve easier Missions first. <br>
+              You will receive <b>reduced Rewards</b> for this Mission if you chose to solve it now.
+            </div>
           </v-card-text>
           <v-card-actions>
             <v-btn color="primary" flat @click.stop="missionBriefing=false">Not now</v-btn>
@@ -92,11 +115,14 @@
           <v-card-text>
             Thank you for solving this mission!
             You have been rewarded with: <br> <br>
-            + {{missionKoinReward}} Koins <br>
-            + {{missionExperienceReward}} Experience <br>
+            + <b>{{missionKoinReward}} Koins </b><br>
+            + <b>{{missionExperienceReward}} Experience </b><br>
+            <div v-if=missionRewardsReduced>
+              <br>
+              <b> (Reduced Rewards) </b>
+            </div>
           </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
+          <v-card-actions class="justify-center">
             <v-btn color="primary" dark class="light-green" flat @click="closeReward">Ok</v-btn>
           </v-card-actions>
         </v-card>
@@ -149,6 +175,10 @@ var myAttributes
 export default {
   data() {
     return {
+      // current Level
+      myCurrentLevel: 0,
+      missionRewardsReduced: false,
+
       // Leaflet map images
       towerImage: require('@/assets/tower.png'),
       landmarkImage: require('@/assets/landmark.png'),
@@ -164,6 +194,7 @@ export default {
       missionRewardDialog: false,
       buildTowerDialog: false,
       buildLandmarkDialog: false,
+      missionUnableDialog: false,
 
       newTowerLat: 0,
       newTowerLng: 0,
@@ -283,11 +314,8 @@ export default {
     // make closure of "this"
     var self = this;
     
-    console.log('get Attributes if logged in...')
     if (this.$store.state.isUserLoggedIn) {
-      console.log('Player is logged in')
       myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
-      console.log(myAttributes)
     } else {
       console.log('Player is not logged in')
       self.LoginError=true
@@ -335,7 +363,6 @@ export default {
     }
     if (this.$store.state.mapZoom != null) {
       mapZoom = self.$store.state.mapZoom
-      console.log(startPoint)
     }
     // init the map object
     var map = L.map('map', {attributionControl: false}).setView(startPoint, mapZoom),
@@ -416,7 +443,6 @@ export default {
       var range = 5000
       if (self.$store.state.isUserLoggedIn) {
         //myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
-        console.log(myAttributes)
         range = parseInt(myAttributes.sight_range)
       }
       self.$http.get('/api_kort/v1.0/missions?user_id=-1&lat='+currentLatitude+'&lon='+currentLongitude+'&radius='+range+'&limit=100&lang=en', {foo: 'bar'}).then(response => {
@@ -478,13 +504,13 @@ export default {
       console.log('you clicked landmark of: ' + this.options.name)
     }
 
-    // This function is triggered when a Player has clicked a mission
+    // This function is triggered when a Player clicks a mission on the map
     function clickedMission(e) { 
       if (!self.$store.state.isUserLoggedIn) {
         self.LoginError=true
       } else {
         self.submitMissionDialog = false
-        self.missionBriefing = true
+        //self.missionBriefing = true
 
         currentMissionDetails = this.options.k
         self.missionType = currentMissionDetails.title
@@ -494,10 +520,75 @@ export default {
         
         self.missionDifficulty = this.options.difficulty
 
+        // fix Missions answer "Asphalt" (Issue #23)
+        if (self.missionPossibleAnswers[0] == "Asphalt, concrete or cobblestone") {
+          self.missionPossibleAnswers.splice(0,1, "Asphalt")
+          self.missionPossibleAnswers.splice(1,0, "Concrete")
+          self.missionPossibleAnswers.splice(2,0, "Cobblestone")
+        }
+
         // Todo:
         // mission reward adjustements for difficulty and current level here
         // get Player Level, make adjustements
+        var currentPlayerLevel = calculateXPLevel(myAttributes.experience)
+        self.myCurrentLevel = currentPlayerLevel
+        console.log('myCurrentLevel: ' + currentPlayerLevel)
+        console.log('thisMissions Level: ' + self.missionDifficulty)
+        
+        // default; Player gains full mission rewards for a solved mission (no message shown)
+        self.missionRewardsReduced = false
+
+        
+        if (self.missionDifficulty == 'easy') {
+          self.missionBriefing = true
+          self.missionKoinReward = 20
+          self.missionExperienceReward = 10
+        }
+
+        if (self.missionDifficulty == 'medium') {
+          if (currentPlayerLevel < 2) {
+            self.missionBriefing = true
+            self.missionRewardsReduced = true
+            self.missionKoinReward = 5
+            self.missionExperienceReward = 5
+          } else {
+            self.missionBriefing = true
+            self.missionKoinReward = 30
+            self.missionExperienceReward = 20
+          }
+        }
+
+        if (self.missionDifficulty == 'hard') {
+          if (currentPlayerLevel < 2) {
+            self.missionUnableDialog = true
+          } else if (currentPlayerLevel < 3) {
+            self.missionBriefing = true
+            self.missionKoinReward = 5
+            self.missionExperienceReward = 5
+          } else {
+            self.missionBriefing = true
+            self.missionKoinReward = 60
+            self.missionExperienceReward = 40
+          }
+        }
       }
+    }
+
+    // Helper function to calculate the current Player Level based on their current XP
+    // returns Level 1, 2, 3 or higher
+    function calculateXPLevel(currentXP) {
+      var currentLevel = 0
+      if (currentXP < 50 ) {
+        currentLevel = 1
+      } else if (currentXP < 550 ) {
+        currentLevel = 2
+      } else if (currentXP < 2330 ) {
+        currentLevel = 3
+      } else {
+        // Default "maxed"
+        currentLevel = 4
+      }
+      return currentLevel
     }
 
     // Show "place tower" button on map if any towers are available and user is logged in
@@ -505,7 +596,7 @@ export default {
       if (parseInt(myAttributes.towers) >= 1) {
         L.NewPolygonControl = L.Control.extend({
           options: {
-            position: 'bottomleft'
+            position: 'topright'
           },
           onAdd: function(map) {
             var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
@@ -542,7 +633,7 @@ export default {
       if (myAttributes.landmarks >= 1) {
         L.NewPolygonControl = L.Control.extend({
           options: {
-            position: 'bottomleft'
+            position: 'topright'
           },
           onAdd: function(map) {
             var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
