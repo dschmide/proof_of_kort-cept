@@ -18,12 +18,15 @@
           <br>
           Koins: {{currentKoins}} <br>
           <br>
-          Towers: {{currentTowers}} <br>
+          Available Towers: {{currentTowers}} <br>
           <br>
-          Landmarks: {{currentLandmarks}} <br>
+          Available Landmarks: {{currentLandmarks}} <br>
           <br> <br>
           Sight Range: {{currentSightRange}} meters<br>
           Tower Range: {{currentTowerRange}} meters<br>
+          <br> <br>
+          In the current Season you have solved {{mySolvedMissionsCount}} Missions <br>
+          This Season ends on 1.2.2018
         </div>
       </div>
     </v-flex>
@@ -32,10 +35,14 @@
 
 <script>
 import UserAttributesService from '@/services/UserAttributesService'
+import MissionService from '@/services/MissionService'
+
 
 export default {
   data () {
     return {
+      // My current solved Missions
+      mySolvedMissionsCount: 0,
       // Mission Dialog Boxes
       currentExperience: 0,
       currentKoins: 0,
@@ -82,7 +89,17 @@ export default {
     } else {
       // Default "maxed"
       this.currentExperiencePercent = 100
-      this.currentLevel = 99
+      this.currentLevel = 4
+    }
+    
+    var mySolvedMissions = await getMySolvedMissions()
+    this.mySolvedMissionsCount = Object.keys(mySolvedMissions).length
+    console.log(mySolvedMissions)
+
+    // This function retrieves the list of all previously solved Missions by this User from the backend Server
+    async function getMySolvedMissions() {
+      let myMissions = await MissionService.getSolvedMissions()
+      return myMissions.data
     }
   }
 }
