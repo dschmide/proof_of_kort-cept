@@ -26,7 +26,7 @@
           Tower Range: {{currentTowerRange}} meters<br>
           <br> <br>
           In the current Season you have solved {{mySolvedMissionsCount}} Missions <br>
-          This Season ends on 1.2.2018
+          This Season ends on February 1, 2018
         </div>
       </div>
     </v-flex>
