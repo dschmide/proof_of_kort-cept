@@ -13,7 +13,8 @@
             <v-spacer></v-spacer>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="red" flat @click.stop="buildLandmarkDialog=false">Cancel</v-btn>
+            <v-btn color="red" flat @click.stop="buildLandmarkCancel">Cancel</v-btn>
+            <v-spacer></v-spacer>
             <v-btn color="primary" class="light-green" flat @click="placeLandmark">Confirm</v-btn>
           </v-card-actions>
         </v-card>
@@ -31,7 +32,7 @@
             <v-spacer></v-spacer>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="red" flat @click.stop="buildTowerDialog=false">Cancel</v-btn>
+            <v-btn color="red" flat @click.stop="buildTowerCancel">Cancel</v-btn>
             <v-spacer></v-spacer>
             <v-btn color="primary" class="light-green" flat @click="placeTower">Confirm</v-btn>
           </v-card-actions>
@@ -172,6 +173,10 @@ var newTower
 var newLandmark
 var myAttributes
 
+// Leaflet Buttons
+var PlaceTowerButton
+var PlaceLandmarkButton
+
 export default {
   data() {
     return {
@@ -262,6 +267,16 @@ export default {
       this.buildTowerDialog = false
       var self = this
       self.$emit("reloadTowers");
+    },
+    // This Function cancels placement of a tower
+    async buildTowerCancel() {
+      this.buildTowerDialog=false
+      this.$emit("cancelPlacement");
+    },
+    // This Function cancels placement of a landmark
+    async buildLandmarkCancel() {
+      this.buildLandmarkDialog=false
+      this.$emit("cancelPlacement");
     },
     // This Function closes the Mission Briefing and opens the Mission Dialog
     openMission() {
@@ -591,21 +606,30 @@ export default {
       return currentLevel
     }
 
-    // Show "place tower" button on map if any towers are available and user is logged in
+    // Show "place tower" button on map if any Towers are available and user is logged in
     if (self.$store.state.isUserLoggedIn) {
       if (parseInt(myAttributes.towers) >= 1) {
-        L.NewPolygonControl = L.Control.extend({
+        L.NewTowerControl = L.Control.extend({
           options: {
             position: 'topright'
           },
           onAdd: function(map) {
-            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
-              link = L.DomUtil.create('a', '', container);
-            link.href = '#';
-            link.title = 'Place Tower';
-            link.innerHTML = 'Tower';
-            L.DomEvent.on(link, 'click', L.DomEvent.stop)
-              .on(link, 'click', function() {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar');
+            var title = L.DomUtil.create('div', 'ControlTitle', container)
+            var image = L.DomUtil.create('img', '', container)
+            var amount = L.DomUtil.create('div', 'amount', container)
+            title.innerHTML = 'Towers'
+            title.style.width = '80px';
+            title.style.margintop = '10px';
+            title.style.fontSize = 'larger';
+            amount.innerHTML = myAttributes.towers;
+            amount.width = '40px';
+            image.src = self.towerImage;
+            image.style.width = '40px';
+            image.style.height = 'auto';
+            container.style.background = 'white';
+            L.DomEvent.on(container, 'click', L.DomEvent.stop)
+              .on(container, 'click', function() {
                 if (parseInt(myAttributes.towers) >= 1) {
                   console.log('placing tower now...')
                   console.log(map.getCenter())
@@ -616,6 +640,10 @@ export default {
                   self.newTowerLat = map.getCenter().lat
                   self.newTowerLng = map.getCenter().lng
                   self.buildTowerDialog = true
+                  amount.innerHTML = myAttributes.towers - 1;
+                  if (myAttributes.towers == 1) {
+                    container.style.display = 'none'
+                  }
                 } else {
                   console.log('no towers available...')
                   container.style.display = 'none';
@@ -625,24 +653,35 @@ export default {
             return container;
           }
         });
-        map.addControl(new L.NewPolygonControl());
+        PlaceTowerButton = new L.NewTowerControl
+        map.addControl(PlaceTowerButton);
       }
-    }
+    }    
+
     // Show "place landmark" button on map if any landmarks are available and user is logged in
     if (self.$store.state.isUserLoggedIn) {
       if (myAttributes.landmarks >= 1) {
-        L.NewPolygonControl = L.Control.extend({
+        L.NewLandmarkControl = L.Control.extend({
           options: {
             position: 'topright'
           },
           onAdd: function(map) {
-            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
-              link = L.DomUtil.create('a', '', container);
-            link.href = '#';
-            link.title = 'Place Landmark';
-            link.innerHTML = 'LMK';
-            L.DomEvent.on(link, 'click', L.DomEvent.stop)
-              .on(link, 'click', function() {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar');
+            var title = L.DomUtil.create('div', 'ControlTitle', container)
+            var image = L.DomUtil.create('img', '', container)
+            var amount = L.DomUtil.create('div', 'amount', container)
+            title.innerHTML = 'Landmarks'
+            title.style.width = '80px';
+            title.style.margintop = '10px';
+            title.style.fontSize = 'larger';
+            amount.innerHTML = myAttributes.landmarks;
+            amount.width = '40px';
+            image.src = self.landmarkImage;
+            image.style.width = '40px';
+            image.style.height = 'auto';
+            container.style.background = 'white';
+            L.DomEvent.on(container, 'click', L.DomEvent.stop)
+              .on(container, 'click', function() {
                 if (myAttributes.landmarks >= 1) {
                   console.log('placing landmark now...')
                   console.log(map.getCenter())
@@ -655,6 +694,10 @@ export default {
                   self.newLandmarkLat = map.getCenter().lat
                   self.newLandmarkLng = map.getCenter().lng
                   self.buildLandmarkDialog = true
+                  amount.innerHTML = myAttributes.landmarks - 1;
+                  if (myAttributes.landmarks == 1) {
+                    container.style.display = 'none'
+                  }
                 } else {
                   console.log('no towers available...')
                   container.style.display = 'none';
@@ -664,9 +707,19 @@ export default {
             return container;
           }
         });
-        map.addControl(new L.NewPolygonControl());
+        PlaceLandmarkButton = new L.NewLandmarkControl();
+        map.addControl(PlaceLandmarkButton);
       }
     }
+
+    // This function is executed if the Player cancels the placement of a Tower from the Dialog
+    // All buttons are removed and added in the correct order
+    this.$on("cancelPlacement", async function(){
+      PlaceTowerButton.remove();
+      PlaceLandmarkButton.remove();
+      map.addControl(PlaceTowerButton);
+      map.addControl(PlaceLandmarkButton);
+    })
 
     // initially draw all available towers
     getAllTowers()
@@ -791,12 +844,13 @@ body {
 
 .leaflet-sidebar>.leaflet-control {
   overflow-y: hidden;
+  text-align: 'center';
 }
 
-.propertyLabel {
-  color: white;
-  text-shadow: 2px 2px 2px black;
-  opacity: 1;
+.leaflet-sidebar>.leaflet-control>.ControlTitle {
+  width: '80px';
+  background-color: 'red';
+  text-align: 'center';
 }
 
 div.overlay--active {
