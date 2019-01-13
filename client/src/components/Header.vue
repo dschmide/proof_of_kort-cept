@@ -4,7 +4,7 @@
     <span
       class="home"
       @click="navigateTo({name: 'root'})">
-      Proof of Kort-cept
+      Proof of Kort-zept
       </span>
     </v-toolbar-title>
 

@@ -25,7 +25,7 @@
           Sight Range: {{currentSightRange}} meters<br>
           Tower Range: {{currentTowerRange}} meters<br>
           <br> <br>
-          In the current Season you have solved {{mySolvedMissionsCount}} Missions <br>
+          In the current Season, you have solved {{mySolvedMissionsCount}} Missions <br>
           This Season ends on February 1, 2018
         </div>
       </div>

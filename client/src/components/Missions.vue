@@ -640,8 +640,8 @@ export default {
                   self.newTowerLat = map.getCenter().lat
                   self.newTowerLng = map.getCenter().lng
                   self.buildTowerDialog = true
-                  amount.innerHTML = myAttributes.towers - 1;
-                  if (myAttributes.towers == 1) {
+                  amount.innerHTML = parseInt(myAttributes.towers) - 1;
+                  if (parseInt(myAttributes.towers) == 1) {
                     container.style.display = 'none'
                   }
                 } else {
@@ -682,7 +682,7 @@ export default {
             container.style.background = 'white';
             L.DomEvent.on(container, 'click', L.DomEvent.stop)
               .on(container, 'click', function() {
-                if (myAttributes.landmarks >= 1) {
+                if (parseInt(myAttributes.landmarks) >= 1) {
                   console.log('placing landmark now...')
                   console.log(map.getCenter())
                   newLandmark = {
@@ -690,16 +690,16 @@ export default {
                     'label': self.$store.state.user,
                     'owner': self.$store.state.user,
                   }
-                  // open the Dialogbox before placeing a new tower
+                  // open the Dialogbox before placeing a new landmark
                   self.newLandmarkLat = map.getCenter().lat
                   self.newLandmarkLng = map.getCenter().lng
                   self.buildLandmarkDialog = true
-                  amount.innerHTML = myAttributes.landmarks - 1;
-                  if (myAttributes.landmarks == 1) {
+                  amount.innerHTML = parseInt(myAttributes.landmarks) - 1;
+                  if (parseInt(myAttributes.landmarks) == 1) {
                     container.style.display = 'none'
                   }
                 } else {
-                  console.log('no towers available...')
+                  console.log('no landmarks available...')
                   container.style.display = 'none';
                 }
               });
@@ -715,10 +715,13 @@ export default {
     // This function is executed if the Player cancels the placement of a Tower from the Dialog
     // All buttons are removed and added in the correct order
     this.$on("cancelPlacement", async function(){
-      PlaceTowerButton.remove();
-      PlaceLandmarkButton.remove();
-      map.addControl(PlaceTowerButton);
-      map.addControl(PlaceLandmarkButton);
+      console.log("Towers: " + parseInt(myAttributes.towers))
+      if (parseInt(myAttributes.towers) >= 0) {
+        map.addControl(PlaceTowerButton);
+      }
+      if (parseInt(myAttributes.landmarks) >= 0) {
+        map.addControl(PlaceLandmarkButton);
+      }
     })
 
     // initially draw all available towers

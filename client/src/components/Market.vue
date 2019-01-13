@@ -25,8 +25,7 @@
               <span>{{showInfo}}</span> <br> <br>
               <v-spacer></v-spacer>
             </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
+            <v-card-actions class="justify-center">
               <v-btn color="primary" class="light-green" flat @click.stop="showInfoBox=false">Ok</v-btn>
             </v-card-actions>
           </v-card>

@@ -26,7 +26,7 @@
         <br>
         <v-btn
           dark
-          class="light-blue"
+          class="light-green"
           @click="login"> 
           Login
         </v-btn>
@@ -49,23 +49,23 @@ export default {
   },
   methods: {
     async login(){
-        const Response = AuthenticationSevice.login({ 
-            username: this.displayname, 
-            password: this.password
+      const Response = AuthenticationSevice.login({ 
+          username: this.displayname, 
+          password: this.password
+        })
+        .then( (response) => {
+          this.$store.dispatch('setToken', response.data.token)
+          this.$store.dispatch('setUser', this.displayname)
+          this.$router.push({
+            name: 'map'
           })
-          .then( (response) => {
-            this.$store.dispatch('setToken', response.data.token)
-            this.$store.dispatch('setUser', this.displayname)
-            this.$router.push({
-              name: 'map'
-            })
-            console.log(response.data)
-          })
-          .catch((error) => {
-            // Catches and displays the error messages if necessary
-            this.error = error.response;
-            console.log("err");
-          })
+          console.log(response.data)
+        })
+        .catch((error) => {
+          // Catches and displays the error messages if necessary
+          this.error = error.response;
+          console.log("err");
+        })
     }
   }
 }
