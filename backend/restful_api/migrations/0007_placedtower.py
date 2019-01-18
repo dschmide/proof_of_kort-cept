@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
             name='PlacedTower',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('location', django.contrib.postgres.fields.ArrayField(base_field=models.DecimalField(decimal_places=15, max_digits=17), size=None)),
-                ('creator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('location', django.contrib.postgres.fields.ArrayField(base_field=models.DecimalField(decimal_places=15, max_digits=17), size=None)),  # noqa
+                ('creator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),  # noqa
             ],
             options={
                 'ordering': ('creator',),

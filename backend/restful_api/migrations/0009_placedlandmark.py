@@ -18,10 +18,10 @@ class Migration(migrations.Migration):
             name='PlacedLandmark',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('location', django.contrib.postgres.fields.ArrayField(base_field=models.DecimalField(decimal_places=15, max_digits=18), size=2)),
+                ('location', django.contrib.postgres.fields.ArrayField(base_field=models.DecimalField(decimal_places=15, max_digits=18), size=2)),  # noqa
                 ('label', models.CharField(max_length=99)),
                 ('owner', models.CharField(max_length=99)),
-                ('creator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('creator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),  # noqa
             ],
             options={
                 'ordering': ('creator',),

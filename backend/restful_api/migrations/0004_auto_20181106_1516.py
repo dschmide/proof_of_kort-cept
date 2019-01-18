@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('osmID', models.DecimalField(decimal_places=0, default=0, max_digits=10)),
                 ('answer', models.DecimalField(decimal_places=0, default=0, max_digits=10)),
-                ('creator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('creator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),  # noqa
             ],
             options={
                 'ordering': ('creator',),
@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('towers', models.DecimalField(decimal_places=0, default=0, max_digits=10)),
                 ('tower_range', models.DecimalField(decimal_places=0, default=0, max_digits=10)),
                 ('sight_range', models.DecimalField(decimal_places=0, default=0, max_digits=10)),
-                ('creator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('creator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),  # noqa
             ],
             options={
                 'ordering': ('creator',),

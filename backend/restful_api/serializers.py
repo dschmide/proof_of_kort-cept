@@ -77,4 +77,3 @@ class solvedMissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = solvedMission
         fields = ('osmID', 'answer', 'solved_by', 'timestamp', 'creator', 'id')
-

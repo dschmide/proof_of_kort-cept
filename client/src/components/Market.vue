@@ -137,8 +137,8 @@ export default {
       cards: [
         { type: 'tower', cost: 50, title: 'Buy 1 Tower', flex: 4, imagePath: require('@/assets/tower.png'), info: "A Tower allows you to extend your vision range into territories beyond your Sight Range" },
         { type: 'landmark', cost: 500, title: 'Buy 1 Landmark', flex: 4, imagePath: require('@/assets/landmark.png'), info: "All Players can see a Landmark placed by you and bask in its glory" },
-        { type: 'vrange', cost: 150, title: 'Upgrade Vision Range', flex: 4, imagePath: require('@/assets/vrange.png'), info: "Extends your Vision Range by 1000 Meters"},
-        { type: 'trange', cost: 150, title: 'Upgrade Tower Range', flex: 4, imagePath: require('@/assets/trange.png'), info: "Extends the Range of all your Towers by 1000 Meters" },
+        { type: 'vrange', cost: 150, title: 'Upgrade Vision Range', flex: 4, imagePath: require('@/assets/vrange.png'), info: "Extends your Vision Range by 1000 m"},
+        { type: 'trange', cost: 150, title: 'Upgrade Tower Range', flex: 4, imagePath: require('@/assets/trange.png'), info: "Extends the Range of all your Towers by 1000 m" },
       ]
     }
   },

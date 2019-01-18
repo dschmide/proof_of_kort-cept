@@ -141,10 +141,10 @@
       </v-alert>
       <v-alert class="errorClass"
         v-model="LoginError"
-        type="error"
+        type="info"
         dismissible
       >
-        Error getting Account Data. Please Login or Sign up first
+        Please Login or create a new account to start solving Missions
       </v-alert>
   </div>
 </template>
@@ -157,7 +157,7 @@ import LandmarkService from '@/services/LandmarkService'
 
 var startPoint = [46.714267, 8.222516];
 var mapZoom = 8;
-const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; <a href="https://github.com/CartoDB/CartoDB-basemaps/blob/master/LICENSE.txt">Map CC-BY</a> &vert; <a href="https://opendatacommons.org/licenses/odbl/">Data ODbL </a> &vert; v1'
+const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; <a href="https://github.com/CartoDB/CartoDB-basemaps/blob/master/LICENSE.txt">Map CC-BY</a> &vert; <a href="https://opendatacommons.org/licenses/odbl/">Data ODbL </a> &vert; v1.6'
 const tileLayerURL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 
 
@@ -250,9 +250,7 @@ export default {
     },
     // This Function sends a created tower to the backend, updates the UserAttributes and redraws all missions from all towers
     async placeTower() {
-      
       myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
-
       // Create the tower on the backend
       TowerService.newTower(newTower)
 
@@ -346,6 +344,7 @@ export default {
     var TowerMissionGroup = L.layerGroup();
     var LeafletTowersIconsGroup = L.layerGroup();
     var LeafletLandmarksIconsGroup = L.layerGroup();
+    var locationErrorOnce = true;
 
     navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions);
     
@@ -369,9 +368,11 @@ export default {
       console.warn(`ERROR(${err.code}): ${err.message}`);
       setTimeout(function(){ navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions); }, 10000);
       console.log("gettingLocationError");
-      self.LocationError = true
+      if (locationErrorOnce) {
+        self.LocationError = true
+        locationErrorOnce = false
+      }
     }
-
 
     if (this.$store.state.mapPos != null) {
       startPoint = [self.$store.state.mapPos.lat, self.$store.state.mapPos.lng]
@@ -578,6 +579,7 @@ export default {
             self.missionUnableDialog = true
           } else if (currentPlayerLevel < 3) {
             self.missionBriefing = true
+            self.missionRewardsReduced = true
             self.missionKoinReward = 5
             self.missionExperienceReward = 5
           } else {
@@ -637,8 +639,8 @@ export default {
                     'location': [map.getCenter().lat, map.getCenter().lng]
                   }
                   // open the Dialogbox before placeing a new tower
-                  self.newTowerLat = map.getCenter().lat
-                  self.newTowerLng = map.getCenter().lng
+                  self.newTowerLat = map.getCenter().lat.toFixed(5)
+                  self.newTowerLng = map.getCenter().lng.toFixed(5)
                   self.buildTowerDialog = true
                   amount.innerHTML = parseInt(myAttributes.towers) - 1;
                   if (parseInt(myAttributes.towers) == 1) {
@@ -686,7 +688,7 @@ export default {
                   console.log('placing landmark now...')
                   console.log(map.getCenter())
                   newLandmark = {
-                    'location': [map.getCenter().lat, map.getCenter().lng],
+                    'location': [map.getCenter().lat.toFixed(5), map.getCenter().toFixed(5).lng],
                     'label': self.$store.state.user,
                     'owner': self.$store.state.user,
                   }

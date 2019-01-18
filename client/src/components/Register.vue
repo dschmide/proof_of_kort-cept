@@ -18,7 +18,7 @@
         ></v-text-field>
         <br>
         <v-text-field
-              label="Email"
+              label="Email (optional)"
               v-model="email"
               @keyup.enter="register" 
         ></v-text-field>

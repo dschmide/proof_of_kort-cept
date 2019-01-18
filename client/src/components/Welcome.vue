@@ -8,8 +8,8 @@
         </v-card-title>
         <v-card-text>
           <span>Are you sure about your choice?</span> <br> <br>
-          <b> Vision Range: </b> {{currentSightRange}} <br>
-          <b> Tower Range: </b> {{currentTowerRange}} <br>
+          <b> Vision Range: </b> {{currentSightRange}} m<br>
+          <b> Tower Range: </b> {{currentTowerRange}} m<br>
           <b> Extra Towers: </b> {{currentTowers}} <br>
           <v-spacer></v-spacer>
         </v-card-text>
@@ -39,8 +39,9 @@
     </v-dialog>
     
     <v-flex md6 offset-md3 xs12>
-      <h2> Welcome to Proof of Kort-cept! </h2> <br>
-      You may now chose your <b>starting bonus</b> <br> <br>
+      <h2> Thanks for signing up to Proof of Kort-cept! </h2> <br>
+      In this webapp, you can solve Missions and contribute to the OpenStreetMap database. <br>
+      You may now choose your <b>starting bonus</b>. May they help you on your journey. <br> <br>
 
       Choices Remaining: <b> {{choicesRemaining}} </b> <br> <br>
       
@@ -51,7 +52,7 @@
         <v-btn icon @click.stop="decreaseSightRange" large>
           <v-icon large>remove_circle</v-icon>
         </v-btn>
-        {{currentSightRange}}
+        {{currentSightRange}} m
         <v-btn icon @click.stop="increaseSightRange" large>
           <v-icon large>add_circle</v-icon>
         </v-btn> 
@@ -68,7 +69,7 @@
         <v-btn icon @click.stop="decreaseTowerRange" large>
           <v-icon large>remove_circle</v-icon>
         </v-btn>
-        {{currentTowerRange}}
+        {{currentTowerRange}} m
         <v-btn icon @click.stop="increaseTowerRange" large>
           <v-icon large>add_circle</v-icon>
         </v-btn> 
@@ -79,7 +80,7 @@
 
       <div id='Towers' class="white elevation-1 pl-4 pr-4 pt-3 pb-2">
         <h3> 2 Towers </h3> <br>
-        Alternatively, you can chose to start with <b>free Towers</b> that you can place anywhere on the map.<br>
+        Alternatively, you can chose to start with <b>free Towers</b> that you can place anywhere on the map and discover Missions in this area.<br>
 
         <v-btn icon @click.stop="decreaseTowers" large>
           <v-icon large>remove_circle</v-icon>

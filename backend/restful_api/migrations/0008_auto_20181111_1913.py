@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='placedtower',
             name='location',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.DecimalField(decimal_places=15, max_digits=18), size=2),
+            field=django.contrib.postgres.fields.ArrayField(base_field=models.DecimalField(decimal_places=15, max_digits=18), size=2),  # noqa
         ),
     ]
