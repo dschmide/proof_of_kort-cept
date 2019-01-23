@@ -40,7 +40,7 @@
     
     <v-flex md6 offset-md3 xs12>
       <h2> Thanks for signing up to Proof of Kort-cept! </h2> <br>
-      In this webapp, you can solve Missions and contribute to the OpenStreetMap database. <br>
+      In this webapp, you can solve Missions to create a free map of the World! <br>
       You may now choose your <b>starting bonus</b>. May they help you on your journey. <br> <br>
 
       Choices Remaining: <b> {{choicesRemaining}} </b> <br> <br>
