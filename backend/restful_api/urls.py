@@ -10,6 +10,7 @@ router.register(r'user_attributes', views.UserAttributesViewSet)
 router.register(r'solved_mission', views.solvedMissionViewSet)
 router.register(r'placed_towers', views.placedTowersViewSet)
 router.register(r'placed_landmarks', views.placedLandmarksViewSet)
+router.register(r'all_solved_missions', views.AllSolvedMissionViewSet)
 
 
 schema_view = get_swagger_view(title='Kort-cept API')

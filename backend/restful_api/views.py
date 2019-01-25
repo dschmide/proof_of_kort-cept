@@ -5,6 +5,10 @@ from rest_framework import viewsets
 from restful_api.models import UserAttributes
 from restful_api.serializers import UserAttributesSerializer
 
+# AllSolved Missions
+from restful_api.models import solvedMission
+from restful_api.serializers import AllSolvedMissionSerializer
+
 # solved Missions
 from restful_api.models import solvedMission
 from restful_api.serializers import solvedMissionSerializer
@@ -63,3 +67,11 @@ class solvedMissionViewSet(viewsets.ModelViewSet):
             return solvedMission.objects.filter(Q(creator=self.request.user))  # noqa
     serializer_class = solvedMissionSerializer
     http_method_names = ['get', 'put', 'delete', 'post']
+
+class AllSolvedMissionViewSet(viewsets.ModelViewSet):
+    queryset = solvedMission.objects.all()
+
+    def get_queryset(self):
+        return solvedMission.objects.all()
+    serializer_class = AllSolvedMissionSerializer
+    http_method_names = ['get']

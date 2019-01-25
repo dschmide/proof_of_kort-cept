@@ -77,3 +77,20 @@ class solvedMissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = solvedMission
         fields = ('osmID', 'answer', 'solved_by', 'timestamp', 'creator', 'id')
+
+
+class AllSolvedMissionSerializer(serializers.ModelSerializer):
+    creator = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),  # Or User.objects.filter(active=True)
+        required=False,
+        allow_null=True,
+        default=None,
+    )
+
+    # Get the current user from request context
+    def validate_creator(self, value):
+        return self.context['request'].user
+
+    class Meta:
+        model = solvedMission
+        fields = ('osmID', 'answer', 'solved_by', 'timestamp', 'creator', 'id')
