@@ -10,7 +10,6 @@ from restful_api.models import solvedMission
 from restful_api.serializers import AllSolvedMissionSerializer
 
 # solved Missions
-from restful_api.models import solvedMission
 from restful_api.serializers import solvedMissionSerializer
 
 # placed Towers
@@ -67,6 +66,7 @@ class solvedMissionViewSet(viewsets.ModelViewSet):
             return solvedMission.objects.filter(Q(creator=self.request.user))  # noqa
     serializer_class = solvedMissionSerializer
     http_method_names = ['get', 'put', 'delete', 'post']
+
 
 class AllSolvedMissionViewSet(viewsets.ModelViewSet):
     queryset = solvedMission.objects.all()
