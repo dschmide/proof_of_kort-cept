@@ -101,7 +101,7 @@ class solvedMission(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ('creator',)
+        ordering = ('osmID', 'creator')
 
     @staticmethod
     def has_read_permission(request):

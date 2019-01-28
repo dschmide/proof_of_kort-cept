@@ -40,10 +40,10 @@
     
     <v-flex md6 offset-md3 xs12>
       <h2> Thanks for signing up to Proof of Kort-cept! </h2> <br>
-      In this webapp, you can solve Missions to create a free map of the World! <br>
+      In this webapp, you can solve Missions to create a free map of the world! <br>
       You may now choose your <b>starting bonus</b>. May they help you on your journey. <br> <br>
 
-      Choices Remaining: <b> {{choicesRemaining}} </b> <br> <br>
+      Choices remaining: <b> {{choicesRemaining}} </b> <br> <br>
       
       <div id='SightRange' class="white elevation-1 pl-4 pr-4 pt-3 pb-2">
         <h3> Sight Range </h3> <br>
@@ -93,6 +93,8 @@
         <br>
       </div>
       
+      <br>
+      Still confused? Read this short guide on the <a href="https://github.com/dschmide/proof_of_kort-cept/wiki" target="_blank">Github Wiki</a>
       <br>
       <v-btn
         dark

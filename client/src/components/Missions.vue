@@ -46,7 +46,15 @@
             <v-spacer></v-spacer>
           </v-card-title>
           <v-card-text>
-            <span>This Mission is <b> {{missionDifficulty}} </b> </span> <br> <br>
+            <div v-if="missionDifficulty==='easy'">
+              <span>This Mission is <b> <font color="green">easy</font></b> </span>
+            </div>
+            <div v-if="missionDifficulty==='medium'">
+              <span>This Mission is <b> <font color="orange">medium</font></b> </span>
+            </div>
+            <div v-if="missionDifficulty==='hard'">
+              <span>This Mission is <b> <font color="OrangeRed">hard</font></b> </span>
+            </div> <br> <br>
             <span>You cannot solve this mission, yet!</span> <br>
             <span>Solve easier Missions before attempting this one</span>
             <v-spacer></v-spacer>
@@ -66,7 +74,15 @@
           <v-card-text>
             <span>You selected the following Mission: </span> <br>
             <strong> {{missionType}} </strong> <br> <br>
-            <span>This Mission is <b> {{missionDifficulty}} </b> </span>
+            <div v-if="missionDifficulty==='easy'">
+              <span>This Mission is <b> <font color="green">easy</font></b> </span>
+            </div>
+            <div v-if="missionDifficulty==='medium'">
+              <span>This Mission is <b> <font color="orange">medium</font></b> </span>
+            </div>
+            <div v-if="missionDifficulty==='hard'">
+              <span>This Mission is <b> <font color="OrangeRed">hard</font></b> </span>
+            </div>
             <v-spacer></v-spacer>
             <div v-if=missionRewardsReduced>
               <br> <br>
@@ -157,7 +173,7 @@ import LandmarkService from '@/services/LandmarkService'
 
 var startPoint = [46.714267, 8.222516];
 var mapZoom = 8;
-const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; <a href="https://github.com/CartoDB/CartoDB-basemaps/blob/master/LICENSE.txt">Map CC-BY</a> &vert; <a href="https://opendatacommons.org/licenses/odbl/">Data ODbL </a> &vert; v1.6'
+const attributionForMap = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &vert; <a href="https://github.com/CartoDB/CartoDB-basemaps/blob/master/LICENSE.txt">Map CC-BY</a> &vert; <a href="https://opendatacommons.org/licenses/odbl/">Data ODbL </a> &vert; v1.7'
 const tileLayerURL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 
 
@@ -180,6 +196,9 @@ var PlaceLandmarkButton
 export default {
   data() {
     return {
+      // zoomcontrol
+      previousZoom: 0,
+      zoomedInForBuild: 13,
       // current Level
       myCurrentLevel: 0,
       missionRewardsReduced: false,
@@ -187,6 +206,7 @@ export default {
       // Leaflet map images
       towerImage: require('@/assets/tower.png'),
       landmarkImage: require('@/assets/landmark.png'),
+      visionRangeImage: require('@/assets/vrangeimage.png'),
 
       // Location Error
       LocationError: false,
@@ -353,8 +373,27 @@ export default {
 
       //Draws the circle
       CircleGroup.clearLayers();
-      L.circleMarker([crd.latitude, crd.longitude], crd.accuracy, {color:'white',opacity:0,fillColor: 'blue',fillOpacity:.15}).addTo(CircleGroup);
-      L.circleMarker([crd.latitude, crd.longitude], 10, {color:'white',opacity:1,fillColor: 'blue',fillOpacity:.7}).addTo(CircleGroup);
+      var visionLat = crd.latitude
+      var visionLon = crd.longitude
+      var visionRangeIcon = L.icon({
+          iconUrl:      self.visionRangeImage,
+          iconSize:     [35, 35], // size of the icon
+          iconAnchor:   [17, 17], // point of the icon which will correspond to marker's location
+          shadowAnchor: [17, 35],  // the same for the shadow
+          popupAnchor:  [0, -17] // point from which the popup should open relative to the iconAnchor
+      });
+      L.marker([visionLat, visionLon], {icon: visionRangeIcon}).addTo(CircleGroup)
+      if (self.$store.state.isUserLoggedIn) {
+        L.circle([visionLat, visionLon], {radius: myAttributes.sight_range, color:'black',opacity:0,fillColor: 'blue',fillOpacity:.08}).addTo(CircleGroup);
+      }else{
+        L.circle([visionLat, visionLon], {radius: 2000, color:'black',opacity:0,fillColor: 'blue',fillOpacity:.08}).addTo(CircleGroup);
+      }
+
+      /* 
+      //show only circle
+      L.circleMarker([crd.latitude, crd.longitude], crd.accuracy, {color:'white',opacity:1,fillColor: 'blue',fillOpacity:.15}).addTo(CircleGroup);
+      L.circleMarker([crd.latitude, crd.longitude], 10, {color:'white',opacity:1,fillColor: 'white',fillOpacity:.7}).addTo(CircleGroup);
+      */
       CircleGroup.addTo(map)
 
       currentLatitude = crd.latitude
@@ -428,6 +467,7 @@ export default {
           shadowAnchor: [4, 62],  // the same for the shadow
           popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
       });
+      L.circle([towerLat, towerLon], {radius: myAttributes.tower_range, color:'black',opacity:0,fillColor: 'black',fillOpacity:.1}).addTo(LeafletTowersIconsGroup);
       L.marker([towerLat, towerLon], {icon: towerIcon}).addTo(LeafletTowersIconsGroup);
     }
 
@@ -456,7 +496,7 @@ export default {
     
     // Add Missions from current location
     async function getNearbyMissions() {
-      var range = 5000
+      var range = 2000
       if (self.$store.state.isUserLoggedIn) {
         //myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
         range = parseInt(myAttributes.sight_range)
@@ -641,6 +681,12 @@ export default {
                   // open the Dialogbox before placeing a new tower
                   self.newTowerLat = map.getCenter().lat.toFixed(5)
                   self.newTowerLng = map.getCenter().lng.toFixed(5)
+                  // zoom in to build
+                  self.previousZoom = map.getZoom()
+                  if (map.getZoom() < self.zoomedInForBuild) {
+                    map.setZoom(self.zoomedInForBuild)
+                  }
+                  // open dialog to confirm
                   self.buildTowerDialog = true
                   amount.innerHTML = parseInt(myAttributes.towers) - 1;
                   if (parseInt(myAttributes.towers) == 1) {
@@ -688,13 +734,19 @@ export default {
                   console.log('placing landmark now...')
                   console.log(map.getCenter())
                   newLandmark = {
-                    'location': [map.getCenter().lat.toFixed(5), map.getCenter().toFixed(5).lng],
+                    'location': [map.getCenter().lat.toFixed(5), map.getCenter().lng.toFixed(5)],
                     'label': self.$store.state.user,
                     'owner': self.$store.state.user,
                   }
                   // open the Dialogbox before placeing a new landmark
-                  self.newLandmarkLat = map.getCenter().lat
-                  self.newLandmarkLng = map.getCenter().lng
+                  self.newLandmarkLat = map.getCenter().lat.toFixed(5)
+                  self.newLandmarkLng = map.getCenter().lng.toFixed(5)
+                  // zoom in to build
+                  self.previousZoom = map.getZoom()
+                  if (map.getZoom() < self.zoomedInForBuild) {
+                    map.setZoom(self.zoomedInForBuild)
+                  }
+                  // open dialog to confirm
                   self.buildLandmarkDialog = true
                   amount.innerHTML = parseInt(myAttributes.landmarks) - 1;
                   if (parseInt(myAttributes.landmarks) == 1) {
@@ -717,11 +769,11 @@ export default {
     // This function is executed if the Player cancels the placement of a Tower from the Dialog
     // All buttons are removed and added in the correct order
     this.$on("cancelPlacement", async function(){
-      console.log("Towers: " + parseInt(myAttributes.towers))
-      if (parseInt(myAttributes.towers) >= 0) {
+      map.setZoom(self.previousZoom)
+      if (parseInt(myAttributes.towers) > 0) {
         map.addControl(PlaceTowerButton);
       }
-      if (parseInt(myAttributes.landmarks) >= 0) {
+      if (parseInt(myAttributes.landmarks) > 0) {
         map.addControl(PlaceLandmarkButton);
       }
     })
