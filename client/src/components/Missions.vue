@@ -46,6 +46,11 @@
             <v-spacer></v-spacer>
           </v-card-title>
           <v-card-text>
+            <img
+              :src="currentMissionIcon" 
+              width=auto
+              height=100
+            >
             <div v-if="missionDifficulty==='easy'">
               <span>This Mission is <b> <font color="green">easy</font></b> </span>
             </div>
@@ -74,6 +79,11 @@
           <v-card-text>
             <span>You selected the following Mission: </span> <br>
             <strong> {{missionType}} </strong> <br> <br>
+            <img
+              :src="currentMissionIcon" 
+              width=auto
+              height=100
+            >
             <div v-if="missionDifficulty==='easy'">
               <span>This Mission is <b> <font color="green">easy</font></b> </span>
             </div>
@@ -196,6 +206,9 @@ var PlaceLandmarkButton
 export default {
   data() {
     return {
+      // current Mission Icon for Briefing
+      currentMissionIcon: '',
+
       // zoomcontrol
       previousZoom: 0,
       zoomedInForBuild: 13,
@@ -207,6 +220,12 @@ export default {
       towerImage: require('@/assets/tower.png'),
       landmarkImage: require('@/assets/landmark.png'),
       visionRangeImage: require('@/assets/vrangeimage.png'),
+
+      missingMaxSpeedImage: require('@/assets/map_icons/missingmaxspeed.svg'),
+      missingRoadImage: require('@/assets/map_icons/missingroad.svg'),
+      missingPoiImage: require('@/assets/map_icons/missingpoi.svg'),
+      missingReligionImage: require('@/assets/map_icons/missingreligion.svg'),
+      missingLanguageImage: require('@/assets/map_icons/missinglanguage.svg'),
 
       // Location Error
       LocationError: false,
@@ -370,6 +389,7 @@ export default {
     var LeafletLandmarksIconsGroup = L.layerGroup();
     var locationErrorOnce = true;
 
+
     navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError, geolocationOptions);
     
     async function geoLocationSuccess(pos) {
@@ -497,6 +517,37 @@ export default {
     this.$on("reloadNearbyMissions", async function(){
       getNearbyMissions()
     })
+    // init Icons for map
+    var maxSpeedIcon = L.icon({
+      iconUrl:      self.missingMaxSpeedImage,
+      iconSize:     [30,30],
+      iconAnchor:   [15,18]
+    });
+    var roadIcon = L.icon({
+      iconUrl:      self.missingRoadImage,
+      iconSize:     [30,30],
+      iconAnchor:   [15,17]
+    });
+    var poiIcon = L.icon({
+      iconUrl:      self.missingPoiImage,
+      iconSize:     [29,29],
+      iconAnchor:   [15,14]
+    });
+    var religionIcon = L.icon({
+      iconUrl:      self.missingReligionImage,
+      iconSize:     [30,30],
+      iconAnchor:   [15,15]
+    });
+    var religionIcon = L.icon({
+      iconUrl:      self.missingReligionImage,
+      iconSize:     [30,30],
+      iconAnchor:   [15,15]
+    });
+    var languageIcon = L.icon({
+      iconUrl:      self.missingLanguageImage,
+      iconSize:     [30,30],
+      iconAnchor:   [15,15]
+    });
     
     // Add Missions from current location
     async function getNearbyMissions() {
@@ -527,28 +578,39 @@ export default {
           // Mission Mapping (Difficulty)
           let difficulty = 'hard'
           let strokecolor =  'OrangeRed'
+          let missionIcon = roadIcon
+          let missionIconImage = self.missingRoadImage
           if (k.error_type == "missing_track_type") {
             strokecolor = 'yellow'
             difficulty = 'medium'
+            missionIcon = roadIcon
+            missionIconImage = self.missingRoadImage
           }
           if (k.error_type == "missing_maxspeed") {
             strokecolor = 'orange'
             difficulty = 'medium'
+            missionIcon = maxSpeedIcon
+            missionIconImage = self.missingMaxSpeedImage
           }
           if (k.error_type == "poi_name") {
             strokecolor = 'OrangeRed'
             difficulty = 'hard'
+            missionIcon = poiIcon
+            missionIconImage = self.missingPoiImage
           }
           if (k.error_type == "language_unknown") {
             strokecolor = 'green'
             difficulty = 'easy'
+            missionIcon = languageIcon
+            missionIconImage = self.missingLanguageImage
           }
           if (k.error_type == "religion") {
             strokecolor = 'Chartreuse'
             difficulty = 'easy'
+            missionIcon = religionIcon
+            missionIconImage = self.missingReligionImage
           }
-
-          L.circleMarker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 6, color:strokecolor, k, difficulty}).addTo(currentLocationGroup).on('click', clickedMission);
+          L.circleMarker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 6, color:strokecolor, k, difficulty, missionIconImage}).addTo(currentLocationGroup).on('click', clickedMission);
         }
       });
       currentLocationGroup.addTo(map)
@@ -571,6 +633,9 @@ export default {
       } else {
         self.submitMissionDialog = false
         //self.missionBriefing = true
+
+        // Mission Icon for Briefing
+        self.currentMissionIcon = this.options.missionIconImage
 
         currentMissionDetails = this.options.k
         self.missionType = currentMissionDetails.title
@@ -855,27 +920,40 @@ export default {
           //Mission Mapping (Difficulty)
           let difficulty = 'hard'
           let strokecolor =  'OrangeRed'
+          let missionIcon = roadIcon
+          let missionIconImage = self.missingRoadImage
           if (k.error_type == "missing_track_type") {
             strokecolor = 'yellow'
             difficulty = 'medium'
+            missionIcon = roadIcon
+            missionIconImage = self.missingRoadImage
           }
           if (k.error_type == "missing_maxspeed") {
             strokecolor = 'orange'
             difficulty = 'medium'
+            missionIcon = maxSpeedIcon
+            missionIconImage = self.missingMaxSpeedImage
           }
           if (k.error_type == "poi_name") {
             strokecolor = 'OrangeRed'
             difficulty = 'hard'
+            missionIcon = poiIcon
+            missionIconImage = self.missingPoiImage
           }
           if (k.error_type == "language_unknown") {
             strokecolor = 'green'
             difficulty = 'easy'
+            missionIcon = languageIcon
+            missionIconImage = self.missingLanguageImage
           }
           if (k.error_type == "religion") {
             strokecolor = 'Chartreuse'
             difficulty = 'easy'
+            missionIcon = religionIcon
+            missionIconImage = self.missingReligionImage
           }
-          L.circleMarker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 6, color:strokecolor, k, difficulty}).addTo(TowerMissionGroup).on('click', clickedMission);
+          //L.marker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {icon: missionIcon, k, difficulty, missionIconImage}).addTo(TowerMissionGroup).on('click', clickedMission);
+          L.circleMarker([k.annotationCoordinate[0], k.annotationCoordinate[1]], {radius: 6, color:strokecolor, k, difficulty, missionIconImage}).addTo(TowerMissionGroup).on('click', clickedMission);
         }
       });
     }, response => {

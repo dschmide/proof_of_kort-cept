@@ -10,6 +10,7 @@
             </div>
           </div>
         </div>
+        <v-spacer> You currently have <b>{{currentKoins}} Koins </b></v-spacer>
         <v-dialog v-model="showInfoBox" max-width="500px">
           <v-card>
             <v-card-title>
@@ -224,7 +225,6 @@ export default {
           this.itemBoughtError = true
         }
         break;
-
       default:
           console.log('buying something else')
       }
@@ -232,6 +232,7 @@ export default {
         this.itemBoughtSuccess = false
         this.itemBoughtError = false
       }, 2000);
+    this.currentKoins = myAttributes.koins
     },
     async giveInfo(itemType, inCard) {
       var selectedCard = inCard
