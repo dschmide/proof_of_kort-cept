@@ -148,6 +148,7 @@ export default {
       })
     },
     async openConfirmDialog() {
+      this.myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
       if (this.choicesRemaining == 0) {
         this.confirmDialog = true
       } else {
@@ -194,7 +195,7 @@ export default {
   },
 
   async created() {
-    this.myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
+    //this.myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
     console.log('created Welcome')
     console.log(this.myAttributes)
   },
