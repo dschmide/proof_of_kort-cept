@@ -84,7 +84,7 @@ export default {
             })
             console.log('fresh profile created')            
           })
-          .then(() => {
+          .then( () => {
             this.$router.push({
               name: 'welcome' 
             })

@@ -254,7 +254,7 @@ export default {
       myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
       
       // Create the tower on the backend
-      LandmarkService.newLandmark(newLandmark)
+      await LandmarkService.newLandmark(newLandmark)
 
       // Update the UserAttributes
       myAttributes.landmarks = parseInt(myAttributes.landmarks) - 1
@@ -264,15 +264,17 @@ export default {
         },
         myAttributes.id,
       )
-      this.buildLandmarkDialog = false
-      var self = this
-      self.$emit("reloadLandmarks");
+      .then( () => {
+        this.buildLandmarkDialog = false
+        var self = this
+        self.$emit("reloadLandmarks");
+      })
     },
     // This Function sends a created tower to the backend, updates the UserAttributes and redraws all missions from all towers
     async placeTower() {
       myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
       // Create the tower on the backend
-      TowerService.newTower(newTower)
+      await TowerService.newTower(newTower)
 
       // Update the UserAttributes
       myAttributes.towers = parseInt(myAttributes.towers) - 1
@@ -282,9 +284,11 @@ export default {
         },
         myAttributes.id,
       )
-      this.buildTowerDialog = false
-      var self = this
-      self.$emit("reloadTowers");
+      .then( () => {
+        this.buildTowerDialog = false
+        var self = this
+        self.$emit("reloadTowers");
+      })
     },
     // This Function cancels placement of a tower
     async buildTowerCancel() {
@@ -676,7 +680,7 @@ export default {
                   console.log('placing tower now...')
                   console.log(map.getCenter())
                   newTower = {
-                    'location': [map.getCenter().lat, map.getCenter().lng]
+                    'location': [map.getCenter().lat.toFixed(5), map.getCenter().lng.toFixed(5)]
                   }
                   // open the Dialogbox before placeing a new tower
                   self.newTowerLat = map.getCenter().lat.toFixed(5)

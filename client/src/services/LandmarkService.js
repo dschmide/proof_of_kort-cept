@@ -4,7 +4,7 @@ export default {
   getAllLandmarks() {
     return Api().get('/api/placed_landmarks/')
   },
-  newLandmark(LandmarkAttributes) {
+  async newLandmark(LandmarkAttributes) {
     return Api().post('/api/placed_landmarks/', LandmarkAttributes)
   },
   deleteTower(id) {

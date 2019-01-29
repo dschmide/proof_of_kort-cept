@@ -148,6 +148,7 @@ export default {
       })
     },
     async openConfirmDialog() {
+      console.log("opening confirm dialog, refreshing attributes")
       this.myAttributes = (await UserAttributesService.getUserAttributes()).data[0]
       if (this.choicesRemaining == 0) {
         this.confirmDialog = true

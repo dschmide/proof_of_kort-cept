@@ -4,7 +4,7 @@ export default {
   getMyTowers() {
     return Api().get('/api/placed_towers/')
   },
-  newTower(TowerAttributes) {
+  async newTower(TowerAttributes) {
     return Api().post('/api/placed_towers/', TowerAttributes)
   },
   deleteTower(id) {
