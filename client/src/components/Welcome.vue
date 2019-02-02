@@ -94,7 +94,7 @@
       </div>
       
       <br>
-      Still confused? Read this short guide on the <a href="https://github.com/dschmide/proof_of_kort-cept/wiki" target="_blank">Github Wiki</a>
+      Want more info? Read this short guide on the <a href="https://github.com/dschmide/proof_of_kort-cept/wiki" target="_blank">Wiki</a>
       <br>
       <v-btn
         dark

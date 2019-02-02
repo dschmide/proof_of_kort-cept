@@ -408,16 +408,10 @@ export default {
       });
       L.marker([visionLat, visionLon], {icon: visionRangeIcon}).addTo(CircleGroup)
       if (self.$store.state.isUserLoggedIn) {
-        L.circle([visionLat, visionLon], {radius: myAttributes.sight_range, color:'black',opacity:0,fillColor: 'blue',fillOpacity:.08}).addTo(CircleGroup);
+        L.circle([visionLat, visionLon], {radius: myAttributes.sight_range, color:'blue',opacity:0.08,fillColor: 'blue',fillOpacity:.0}).addTo(CircleGroup);
       }else{
-        L.circle([visionLat, visionLon], {radius: 2000, color:'black',opacity:0,fillColor: 'blue',fillOpacity:.08}).addTo(CircleGroup);
+        L.circle([visionLat, visionLon], {radius: 2000, color:'blue',opacity:0.08,fillColor: 'blue',fillOpacity:.0}).addTo(CircleGroup);
       }
-
-      /* 
-      //show only circle
-      L.circleMarker([crd.latitude, crd.longitude], crd.accuracy, {color:'white',opacity:1,fillColor: 'blue',fillOpacity:.15}).addTo(CircleGroup);
-      L.circleMarker([crd.latitude, crd.longitude], 10, {color:'white',opacity:1,fillColor: 'white',fillOpacity:.7}).addTo(CircleGroup);
-      */
       CircleGroup.addTo(map)
 
       currentLatitude = crd.latitude
@@ -491,7 +485,7 @@ export default {
           shadowAnchor: [4, 62],  // the same for the shadow
           popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
       });
-      L.circle([towerLat, towerLon], {radius: myAttributes.tower_range, color:'black',opacity:0,fillColor: 'black',fillOpacity:.1}).addTo(LeafletTowersIconsGroup);
+      L.circle([towerLat, towerLon], {radius: myAttributes.tower_range, color:'black',opacity:0.1,fillColor: 'black',fillOpacity:0}).addTo(LeafletTowersIconsGroup);
       L.marker([towerLat, towerLon], {icon: towerIcon}).addTo(LeafletTowersIconsGroup);
     }
 
