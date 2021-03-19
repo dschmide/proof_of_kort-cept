@@ -9,7 +9,7 @@ django-environ==0.4.4
 django-minio-storage==0.2.1
 django-rest-swagger==2.1.2
 django-templated-mail==1.1.1
-djangorestframework==3.8.2
+djangorestframework==3.11.2
 djangorestframework-gis==0.13
 djangorestframework-jwt==1.11.0
 djoser==1.1.5
