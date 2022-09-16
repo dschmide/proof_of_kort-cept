@@ -19,7 +19,7 @@ idna==2.6
 isodate==0.5.4
 itypes==1.1.0
 Jinja2==2.10
-Mako==1.0.6
+Mako==1.2.2
 MarkupSafe==1.0
 mccabe==0.6.1
 minio==4.0.0
